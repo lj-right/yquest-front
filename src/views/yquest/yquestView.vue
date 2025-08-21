@@ -198,7 +198,7 @@
 
 <script>
 export default {
-  name: "LoginPage",
+  name: "YuestPage",
   data() {
     return {
       isLogin: true,

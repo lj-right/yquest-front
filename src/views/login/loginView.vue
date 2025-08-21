@@ -7,16 +7,16 @@
       </a>
 
       <div class="nav-links">
-        <a href="/yquest" class="nav-link">首页</a>
-        <a href="#" class="nav-link">职位搜索</a>
-        <a href="#" class="nav-link">内推机会</a>
-        <a href="#" class="nav-link">求职交流</a>
-        <a href="#" class="nav-link">关于作者</a>
+        <router-link to="/yquest" class="nav-link">首页</router-link>
+        <router-link to="/refer" class="nav-link">职位搜索</router-link>
+        <router-link to="/refer" class="nav-link">内推机会</router-link>
+        <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">关于作者</router-link>
       </div>
 
       <div class="nav-actions">
-        <a href="#" class="nav-btn btn-login">登录</a>
-        <a href="#" class="nav-btn btn-register">注册</a>
+        <router-link to="/login" class="nav-btn btn-login">登录</router-link>
+        <router-link to="/login" class="nav-btn btn-register">注册</router-link>
       </div>
     </nav>
 
