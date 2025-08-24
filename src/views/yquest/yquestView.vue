@@ -8,9 +8,9 @@
 
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/refer" class="nav-link">职位搜索</router-link>
         <router-link to="/refer" class="nav-link">内推机会</router-link>
         <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/refer" class="nav-link">关于作者</router-link>
       </div>
 
@@ -26,7 +26,7 @@
       <!-- 英雄区域 -->
       <section class="hero">
         <div class="hero-text">
-          <h1>连接优秀人才与顶级企业的内推平台</h1>
+          <h1>你的追求,我们的推荐</h1>
           <p>通过内推码快速入职，加速你的职业发展</p>
           <div class="hero-actions">
             <router-link to="/refer" class="hero-btn primary"
@@ -141,14 +141,6 @@
         </div>
       </section>
 
-      <!-- 行动号召 -->
-      <section class="cta-section">
-        <div class="cta-content">
-          <h2>准备好获取专属内推机会了吗？</h2>
-          <p>立即注册账号，解锁更多顶级企业内推岗位</p>
-          <router-link to="/login" class="cta-btn">免费注册账号</router-link>
-        </div>
-      </section>
     </main>
     <!-- 页脚 -->
     <footer class="footer">
@@ -157,7 +149,7 @@
           <div class="footer-logo">
             YQuest<span>&nbsp;&nbsp;Our Refer</span>
           </div>
-          <p>你的追求，我们的推荐,连接优秀人才与顶级企业的内推平台</p>
+          <p>连接优秀人才与顶级企业的内推平台</p>
         </div>
 
         <div class="footer-links-group">
@@ -190,7 +182,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>© 2025 YQuest 内推码平台,保留所有权利</p>
+        <p>© 2025 YQuest 内推码平台，保留所有权利</p>
       </div>
     </footer>
   </div>
@@ -276,21 +268,26 @@ export default {
         confirmPassword: "",
       }
     },
-    addFontAwesome() {
-      // 检查是否已存在Font Awesome
-      if (!document.querySelector('link[href*="font-awesome"]')) {
-        const link = document.createElement("link")
-        link.rel = "stylesheet"
-        link.href =
-          "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-        document.head.appendChild(link)
-      }
+    loadFontAwesome() {
+      return new Promise((resolve) => {
+        if (document.querySelector('link[href*="font-awesome"]')) {
+          resolve();
+          return;
+        }
+        
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+        link.onload = resolve;
+        document.head.appendChild(link);
+      });
     },
   },
-    mounted() {
-    this.addFontAwesome()
+  async mounted() {
+    await this.loadFontAwesome();
+    this.fontAwesomeLoaded = true;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -421,7 +418,7 @@ export default {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
   padding-top:50px;
-  padding-left:250px;
+  padding-left:370px;
   padding-bottom: 80px;
 }
 
@@ -513,6 +510,7 @@ export default {
   margin: 0 auto 20px;
   color: #4a6cf8;
   font-size: 28px;
+  transition: opacity 0.3s ease;
 }
 
 .feature-card h3 {
@@ -647,46 +645,6 @@ export default {
 
 .apply-btn:hover {
   background: linear-gradient(to right, #3a5ce6, #7a3ae6);
-}
-
-/* 行动号召 */
-.cta-section {
-  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
-  border-radius: 20px;
-  padding: 70px 50px;
-  text-align: center;
-  color: white;
-  margin-bottom: 80px;
-}
-
-.cta-section h2 {
-  font-size: 2.2rem;
-  margin-bottom: 20px;
-}
-
-.cta-section p {
-  font-size: 1.2rem;
-  max-width: 600px;
-  margin: 0 auto 40px;
-  opacity: 0.9;
-}
-
-.cta-btn {
-  display: inline-block;
-  background: white;
-  color: #4a6cf8;
-  padding: 16px 50px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.cta-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* 页脚样式 */

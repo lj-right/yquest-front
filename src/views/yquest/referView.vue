@@ -8,9 +8,9 @@
 
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/refer" class="nav-link">职位搜索</router-link>
         <router-link to="/refer" class="nav-link">内推机会</router-link>
         <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/refer" class="nav-link">关于作者</router-link>
       </div>
 
@@ -30,7 +30,7 @@
           <div class="footer-logo">
             YQuest<span>&nbsp;&nbsp;Our Refer</span>
           </div>
-          <p>你的追求，我们的推荐,连接优秀人才与顶级企业的内推平台</p>
+          <p>连接优秀人才与顶级企业的内推平台</p>
         </div>
 
         <div class="footer-links-group">
@@ -63,7 +63,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>© 2025 YQuest 内推码平台,保留所有权利</p>
+        <p>© 2025 YQuest 内推码平台，保留所有权利</p>
       </div>
     </footer>
   </div>
@@ -159,26 +159,26 @@ export default {
         document.head.appendChild(link)
       }
     },
-    initBubbles() {
-      const bubbles = document.querySelectorAll(".bubble")
-      bubbles.forEach((bubble) => {
-        // 设置随机动画延迟和持续时间
-        const delay = Math.random() * 5
-        const duration = 10 + Math.random() * 10
-
-        bubble.style.animationDelay = `${delay}s`
-        bubble.style.animationDuration = `${duration}s`
-      })
+    loadFontAwesome() {
+      return new Promise((resolve) => {
+        if (document.querySelector('link[href*="font-awesome"]')) {
+          resolve();
+          return;
+        }
+        
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+        link.onload = resolve;
+        document.head.appendChild(link);
+      });
     },
   },
-  mounted() {
-    // 动态添加Font Awesome图标库
-    this.addFontAwesome()
-
-    // 添加气泡动画
-    this.initBubbles()
-  },
-}
+  async mounted() {
+    await this.loadFontAwesome();
+    this.fontAwesomeLoaded = true;
+  }
+};
 </script>
 
 <style scoped>

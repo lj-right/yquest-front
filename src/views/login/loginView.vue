@@ -8,9 +8,9 @@
 
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/refer" class="nav-link">职位搜索</router-link>
         <router-link to="/refer" class="nav-link">内推机会</router-link>
         <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/refer" class="nav-link">关于作者</router-link>
       </div>
 
@@ -212,7 +212,7 @@
       <div class="footer-content">
         <div class="footer-info">
           <div class="footer-logo">YQuest<span>&nbsp;&nbsp;Our Refer</span></div>
-          <p>你的追求，我们的推荐,连接优秀人才与顶级企业的内推平台</p>
+          <p>连接优秀人才与顶级企业的内推平台</p>
         </div>
 
         <div class="footer-links-group">
