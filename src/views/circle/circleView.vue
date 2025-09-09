@@ -1,9 +1,28 @@
 <template>
   <div class="social-qa-container">
+    <!-- 导航栏 -->
+    <nav class="navbar">
+      <a href="#" class="navbar-brand">
+        <router-link to="/yquest" class="brand-logo">Y<span>Quest</span></router-link>
+      </a>
+
+      <div class="nav-links">
+        <router-link to="/yquest" class="nav-link">首页</router-link>
+        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
+        <router-link to="/circle" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
+        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
+      </div>
+
+      <div class="nav-actions">
+        <router-link to="/login" class="nav-btn btn-login">登录</router-link>
+        <router-link to="/login" class="nav-btn btn-register">注册</router-link>
+      </div>
+    </nav>
     <!-- 顶部标签栏 -->
     <div class="tab-bar">
       <div class="tab active">关注</div>
-      <div class="tab">推荐</div>
+      <div class="tab active">推荐</div>
       <div class="tab">圈子</div>
     </div>
 
@@ -12,16 +31,16 @@
       <!-- 第一条动态 -->
       <div class="feed-card">
         <div class="user-info">
-          <div class="username">SkateLord3 <span class="user-level">LV.1</span></div>
+          <div class="username">测试 <span class="user-level">LV.1</span></div>
           <div class="post-time">08-21 12:09</div>
         </div>
         <div class="post-content">
           <div class="post-tags">
-            <span class="tag">门头沟学院</span>
+            <span class="tag">测试</span>
             <span class="tag">Java</span>
           </div>
-          <div class="post-text">京东秋招一面挂</div>
-          <div class="post-detail">感觉表现的还不错面试官也说没啥问题为什么就挂了呢</div>
+          <div class="post-text">京东秋招</div>
+          <div class="post-detail">感觉表现的还不错</div>
         </div>
         <div class="post-actions">
           <div class="action-item">
@@ -43,7 +62,7 @@
         </div>
         <div class="comment-preview">
           <div class="comment-item">
-            <span class="comment-user">爽朗的安逸：</span>
+            <span class="comment-user">爽朗用户：</span>
             <span class="comment-text">一样</span>
           </div>
         </div>
@@ -57,10 +76,10 @@
         </div>
         <div class="post-content">
           <div class="post-tags">
-            <span class="tag">门头沟学院</span>
+            <span class="tag">测试</span>
             <span class="tag">golang</span>
           </div>
-          <div class="post-text">浪潮不是国企吗居然也上榜</div>
+          <div class="post-text">国企吗</div>
           <div class="post-detail">还排名这么靠前?</div>
           <div class="post-meta">哈哈</div>
         </div>
@@ -84,12 +103,12 @@
         </div>
         <div class="comment-preview">
           <div class="comment-item">
-            <span class="comment-user">赛博小蟑螂：</span>
-            <span class="comment-text">虽然时间长，但是他工资低啊</span>
+            <span class="comment-user">赛博用户：</span>
+            <span class="comment-text">content</span>
           </div>
         </div>
         <div class="additional-info">
-          投递浪潮等公司10个岗位
+          Huawei等公司10个岗位
         </div>
       </div>
     </div>
@@ -104,6 +123,119 @@ export default {
 </script>
 
 <style scoped>
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
+  color: #333;
+}
+
+/* 导航栏样式 */
+.navbar {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 15px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-logo {
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a6cf8;
+}
+
+.brand-logo span {
+  color: #8a4af8;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-link {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: #4a6cf8;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #4a6cf8;
+  transition: width 0.3s;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.btn-login {
+  background: #f0f4ff;
+  color: #4a6cf8;
+  border: 1px solid #d9e0ff;
+}
+
+.btn-login:hover {
+  background: #e4e7ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
+}
+
+.btn-register {
+  background: linear-gradient(to right, #4a6cf8, #8a4af8);
+  color: white;
+  border: none;
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3);
+}
 .social-qa-container {
   background-color: #f5f5f5;
   min-height: 100vh;

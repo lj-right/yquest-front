@@ -3,15 +3,17 @@
     <!-- 导航栏 -->
     <nav class="navbar">
       <a href="#" class="navbar-brand">
-        <router-link to="/yquest" class="brand-logo">Y<span>Quest</span></router-link>
+        <router-link to="/yquest" class="brand-logo"
+          >Y<span>Quest</span></router-link
+        >
       </a>
 
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/refer" class="nav-link">内推机会</router-link>
-        <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
+        <router-link to="/circle" class="nav-link">求职交流</router-link>
         <router-link to="/refer" class="nav-link">我要内推</router-link>
-        <router-link to="/refer" class="nav-link">关于作者</router-link>
+        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
       <div class="nav-actions">
@@ -28,13 +30,15 @@
         <div class="hero-text">
           <h1>你的追求,我们的推荐</h1>
           <p>通过内推码快速入职，加速你的职业发展</p>
-          <div class="hero-actions">
+          <div style="display: flex; justify-content: center;">
+            <div class="hero-actions">
             <router-link to="/refer" class="hero-btn primary"
               >探索内推机会</router-link
             >
             <router-link to="/login" class="hero-btn secondary"
               >立即注册</router-link
             >
+          </div>
           </div>
         </div>
       </section>
@@ -45,31 +49,31 @@
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="fas fa-bolt"></i>
+              <i class="el-icon-trophy-1"></i>
             </div>
             <h3>快速入职</h3>
             <p>通过内推渠道，平均入职时间缩短30%</p>
           </div>
-          
+
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="fas fa-star"></i>
+              <i class="el-icon-star-off"></i>
             </div>
             <h3>优质机会</h3>
             <p>精选顶级企业未公开的内推岗位</p>
           </div>
-          
+
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="fas fa-handshake"></i>
+              <i class="el-icon-chat-line-square"></i>
             </div>
             <h3>直接沟通</h3>
             <p>与内部推荐人直接交流，获取一手信息</p>
           </div>
-          
+
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="fas fa-shield-alt"></i>
+              <i class="el-icon-lock"></i>
             </div>
             <h3>申请保障</h3>
             <p>内推申请100%直达招聘团队</p>
@@ -81,9 +85,11 @@
       <section class="jobs-section">
         <div class="section-header">
           <h2 class="section-title">热门内推职位</h2>
-          <router-link to="/refer" class="view-all">查看全部 <i class="fas fa-arrow-right"></i></router-link>
+          <router-link to="/refer" class="view-all"
+            >查看全部 <i class="fas fa-arrow-right"></i
+          ></router-link>
         </div>
-        
+
         <div class="jobs-grid">
           <div class="job-card">
             <div class="job-header">
@@ -102,7 +108,7 @@
               <button class="apply-btn">立即申请</button>
             </div>
           </div>
-          
+
           <div class="job-card">
             <div class="job-header">
               <div class="company-logo">Alibaba</div>
@@ -120,7 +126,7 @@
               <button class="apply-btn">立即申请</button>
             </div>
           </div>
-          
+
           <div class="job-card">
             <div class="job-header">
               <div class="company-logo">Huawei</div>
@@ -140,7 +146,6 @@
           </div>
         </div>
       </section>
-
     </main>
     <!-- 页脚 -->
     <footer class="footer">
@@ -213,81 +218,8 @@ export default {
     switchToRegister() {
       this.isLogin = false
     },
-    handleLogin() {
-      // 这里实现登录逻辑
-      if (this.login.email && this.login.password) {
-        console.log("登录信息:", this.login)
-        alert(`登录邮箱: ${this.login.email}`)
-      } else {
-        alert("请输入邮箱和密码")
-      }
-    },
-    handleRegister() {
-      // 表单验证
-      if (
-        !this.register.name ||
-        !this.register.email ||
-        !this.register.password ||
-        !this.register.confirmPassword
-      ) {
-        alert("请填写所有必填项")
-        return
-      }
-
-      // 密码验证
-      if (this.register.password !== this.register.confirmPassword) {
-        alert("两次输入的密码不一致！")
-        return
-      }
-
-      // 密码复杂度校验
-      if (this.register.password.length < 6) {
-        alert("密码长度不能小于6位！")
-        return
-      }
-
-      // 邮箱验证
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(this.register.email)) {
-        alert("请输入有效的邮箱地址")
-        return
-      }
-
-      // 这里实现注册逻辑
-      console.log("注册信息:", this.register)
-      alert(`注册成功: ${this.register.name} (${this.register.email})`)
-
-      // 自动切换到登录页面
-      this.isLogin = true
-
-      // 重置注册表单
-      this.register = {
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      }
-    },
-    loadFontAwesome() {
-      return new Promise((resolve) => {
-        if (document.querySelector('link[href*="font-awesome"]')) {
-          resolve();
-          return;
-        }
-        
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
-        link.onload = resolve;
-        document.head.appendChild(link);
-      });
-    },
   },
-  async mounted() {
-    await this.loadFontAwesome();
-    this.fontAwesomeLoaded = true;
-  }
-};
+}
 </script>
 
 <style scoped>
@@ -414,12 +346,12 @@ export default {
 
 /* 英雄区域 */
 .hero {
+  text-align: center;
   display: flex;
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
-  padding-top:50px;
-  padding-left:370px;
-  padding-bottom: 80px;
+  padding-bottom:60px;
+
 }
 
 .hero-text {
@@ -440,8 +372,10 @@ export default {
 }
 
 .hero-actions {
+  width:350px;
   display: flex;
   gap: 20px;
+
 }
 
 .hero-btn {
@@ -455,6 +389,7 @@ export default {
 .hero-btn.primary {
   background: linear-gradient(to right, #4a6cf8, #8a4af8);
   color: white;
+
 }
 
 .hero-btn.secondary {
@@ -723,15 +658,15 @@ export default {
   .footer-links {
     align-items: center;
   }
-  
+
   .hero {
     flex-direction: column;
   }
-  
+
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .jobs-grid {
     grid-template-columns: 1fr;
   }
@@ -741,7 +676,7 @@ export default {
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .jobs-grid {
     grid-template-columns: repeat(2, 1fr);
   }

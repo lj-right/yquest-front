@@ -3,15 +3,17 @@
     <!-- 导航栏 -->
     <nav class="navbar">
       <a href="#" class="navbar-brand">
-        <router-link to="/yquest" class="brand-logo">Y<span>Quest</span></router-link>
+        <router-link to="/yquest" class="brand-logo"
+          >Y<span>Quest</span></router-link
+        >
       </a>
 
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/refer" class="nav-link">内推机会</router-link>
-        <router-link to="/refer" class="nav-link">求职交流</router-link>
+        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
+        <router-link to="/circle" class="nav-link">求职交流</router-link>
         <router-link to="/refer" class="nav-link">我要内推</router-link>
-        <router-link to="/refer" class="nav-link">关于作者</router-link>
+        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
       <div class="nav-actions">
@@ -35,10 +37,10 @@
               <div class="logo">Y<span>Quest</span></div>
               <p class="slogan">发现您的职业新机会</p>
               <ul class="features">
-                <li><i class="fas fa-check"></i> 顶级企业真实内推机会</li>
-                <li><i class="fas fa-check"></i> 简历优先进入招聘系统</li>
-                <li><i class="fas fa-check"></i> 全程跟踪内推进展</li>
-                <li><i class="fas fa-check"></i> 高效直接的沟通渠道</li>
+                <li><i class="el-icon-check"></i>顶级企业真实内推机会</li>
+                <li><i class="el-icon-check"></i> 简历优先进入招聘系统</li>
+                <li><i class="el-icon-check"></i> 全程跟踪内推进展</li>
+                <li><i class="el-icon-check"></i> 高效直接的沟通渠道</li>
               </ul>
             </div>
           </div>
@@ -74,7 +76,7 @@
                     <div class="form-group">
                       <label for="loginEmail">邮箱地址</label>
                       <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
+                        <i class="el-icon-message"></i>
                       </div>
                       <input
                         type="email"
@@ -89,7 +91,7 @@
                     <div class="form-group">
                       <label for="loginPassword">密码</label>
                       <div class="input-icon">
-                        <i class="fas fa-lock"></i>
+                        <i class="el-icon-lock"></i>
                       </div>
                       <input
                         type="password"
@@ -111,13 +113,7 @@
 
                     <div class="social-login">
                       <button class="social-btn">
-                        <i class="fab fa-google"></i>
-                      </button>
-                      <button class="social-btn">
                         <i class="fab fa-weixin"></i>
-                      </button>
-                      <button class="social-btn">
-                        <i class="fab fa-github"></i>
                       </button>
                     </div>
                   </form>
@@ -131,7 +127,7 @@
                     <div class="form-group">
                       <label for="registerName">用户名</label>
                       <div class="input-icon">
-                        <i class="fas fa-user"></i>
+                        <i class="el-icon-user"></i>
                       </div>
                       <input
                         type="text"
@@ -146,7 +142,7 @@
                     <div class="form-group">
                       <label for="registerEmail">邮箱地址</label>
                       <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
+                        <i class="el-icon-message"></i>
                       </div>
                       <input
                         type="email"
@@ -161,7 +157,7 @@
                     <div class="form-group">
                       <label for="registerPassword">密码</label>
                       <div class="input-icon">
-                        <i class="fas fa-lock"></i>
+                        <i class="el-icon-lock"></i>
                       </div>
                       <input
                         type="password"
@@ -176,7 +172,7 @@
                     <div class="form-group">
                       <label for="registerPassword2">确认密码</label>
                       <div class="input-icon">
-                        <i class="fas fa-lock"></i>
+                        <i class="el-icon-lock"></i>
                       </div>
                       <input
                         type="password"
@@ -211,15 +207,16 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-info">
-          <div class="footer-logo">YQuest<span>&nbsp;&nbsp;Our Refer</span></div>
+          <div class="footer-logo">
+            YQuest<span>&nbsp;&nbsp;Our Refer</span>
+          </div>
           <p>连接优秀人才与顶级企业的内推平台</p>
         </div>
 
         <div class="footer-links-group">
           <h3>快速链接</h3>
           <div class="footer-links">
-            <a href="#" class="footer-link">首页</a>
-            <a href="#" class="footer-link">职位搜索</a>
+            <a href="/request" class="footer-link">首页</a>
             <a href="#" class="footer-link">内推机会</a>
             <a href="#" class="footer-link">求职攻略</a>
           </div>
@@ -252,6 +249,7 @@
 </template>
 
 <script>
+import axios from "axios"
 export default {
   name: "LoginPage",
   data() {
@@ -279,8 +277,18 @@ export default {
     handleLogin() {
       // 这里实现登录逻辑
       if (this.login.email && this.login.password) {
-        console.log("登录信息:", this.login)
-        alert(`登录邮箱: ${this.login.email}`)
+        axios
+          // .post("http://27.106.112.214:5555/authUser/auth/login", {
+          .post("http://27.106.112.214/#", {
+            userName: this.login.email,
+            password: this.login.password,
+            status: 1,
+          })
+          .then((res) => {
+            if (res.data.code === 200) {
+            localStorage.key = res.data.date.tokenValue
+            }
+          })
       } else {
         alert("请输入邮箱和密码")
       }

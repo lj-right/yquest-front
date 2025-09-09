@@ -1,7 +1,11 @@
-const { defineConfig } = require('@vue/cli-service')
-module.exports = defineConfig({
-  transpileDependencies: true,
-  devServer:{
-    port:9888
+//打包配置文件
+module.exports = {
+  assetsDir: 'static',
+  parallel: false,
+  publicPath: './',
+  devServer: {
+    client:{
+      overlay: false
+    },
   }
-})
+};
