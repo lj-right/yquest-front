@@ -162,11 +162,12 @@
                         required
                       />
                       <button
+                        :disabled="isButtonDisabled"
                         type="button"
                         class="send-btn"
                         @click="sendCodeBtn"
                       >
-                        发送验证码
+                        {{ isButtonDisabled ? "已发送" : "发送验证码" }}
                       </button>
                     </div>
 
@@ -198,7 +199,9 @@
                       />
                     </div>
 
-                    <button type="submit" class="btn" @click="registerUser">创建账号</button>
+                    <button type="submit" class="btn" @click="registerUser">
+                      创建账号
+                    </button>
                   </form>
                 </div>
               </transition>
@@ -280,8 +283,8 @@ export default {
         password: "",
         confirmPassword: "",
       },
-      countdown: 0, // 倒计时秒数
-      rightCode: '', // 后端返回的验证码
+      isButtonDisabled: false,
+      rightCode: "", // 后端返回的验证码
     }
   },
   methods: {
@@ -292,28 +295,23 @@ export default {
       this.isLogin = false
     },
     sendCodeBtn() {
+      if (this.isButtonDisabled) return // 防止重复点击
       axios
         .post("http://localhost:5555/authUser/email/send", {
           email: this.register.email,
         })
         .then((res) => {
           if (res.data.code === 200) {
-            //设置120秒倒计时且不可点击
-            this.showToast("验证码已发送到您的邮箱", true)
-            // 设置120秒倒计时且不可点击
-            this.countdown = 120
-
-            const countdownInterval = setInterval(() => {
-              this.countdown--
-
-              if (this.countdown <= 0) {
-                clearInterval(countdownInterval)
-              }
-            }, 1000)
+            // 发送后btn禁用2分钟
+            this.isButtonDisabled = true // 禁用按钮
+            // 模拟异步操作，2秒后恢复按钮可用
+            setTimeout(() => {
+              this.isButtonDisabled = false
+            }, 120*1000)
           }
         })
     },
-    getEmailCode(){
+    getEmailCode() {
       axios
         .post("http://localhost:5555/authUser/auth/captcha", {
           email: this.register.email,
@@ -335,9 +333,9 @@ export default {
           })
           .then((res) => {
             if (res.data.code === 200 && res.data.date) {
-              localStorage.setItem('token', res.data.date.tokenValue);
+              localStorage.setItem("token", res.data.date.tokenValue)
               alert("登录成功")
-            }else{
+            } else {
               alert("密码错误或用户不存在")
             }
           })
@@ -345,16 +343,15 @@ export default {
         alert("请输入邮箱和密码")
       }
     },
-    registerUser(){
-      axios
-          .post("http://localhost:5555/authUser/no-auth/register", {
-            nickName: this.register.name,
-            email: this.register.email,
-            password: this.login.password,
-            introduce: '第一次加入YQuest，期待更多机会！',
-          })
+    registerUser() {
+      axios.post("http://localhost:5555/authUser/no-auth/register", {
+        nickName: this.register.name,
+        email: this.register.email,
+        password: this.login.password,
+        introduce: "第一次加入YQuest，期待更多机会！",
+      })
     },
-   
+
     handleRegister() {
       // 表单验证
       if (
@@ -395,7 +392,6 @@ export default {
 
       // 这里实现注册逻辑
       this.registerUser
-      
 
       // 自动切换到登录页面
       this.isLogin = true
@@ -408,7 +404,7 @@ export default {
         confirmPassword: "",
       }
     },
-     
+
     addFontAwesome() {
       // 检查是否已存在Font Awesome
       if (!document.querySelector('link[href*="font-awesome"]')) {
