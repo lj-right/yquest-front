@@ -179,7 +179,7 @@ export default {
     searchByCompany() {
       if (this.searchKeyword.trim() !== "") {
         axios
-          .post("http://27.106.112.21:5555/refer/searchByMessage", {
+          .post("http://27.106.112.214:5555/refer/searchByMessage", {
             company: this.searchKeyword,
             pageNo: this.pageNo,
             pageSize: this.pageSize,
