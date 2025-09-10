@@ -74,7 +74,6 @@
 
                   <form @submit.prevent="handleLogin">
                     <div class="form-group">
-                      <label for="loginEmail">邮箱地址</label>
                       <div class="input-icon">
                         <i class="el-icon-message"></i>
                       </div>
@@ -89,7 +88,6 @@
                     </div>
 
                     <div class="form-group">
-                      <label for="loginPassword">密码</label>
                       <div class="input-icon">
                         <i class="el-icon-lock"></i>
                       </div>
@@ -113,7 +111,7 @@
 
                     <div class="social-login">
                       <button class="social-btn">
-                        <i class="fab fa-weixin"></i>
+                        <i class="el-icon-full-screen"></i>
                       </button>
                     </div>
                   </form>
@@ -125,7 +123,6 @@
 
                   <form @submit.prevent="handleRegister">
                     <div class="form-group">
-                      <label for="registerName">用户名</label>
                       <div class="input-icon">
                         <i class="el-icon-user"></i>
                       </div>
@@ -140,7 +137,6 @@
                     </div>
 
                     <div class="form-group">
-                      <label for="registerEmail">邮箱地址</label>
                       <div class="input-icon">
                         <i class="el-icon-message"></i>
                       </div>
@@ -153,9 +149,28 @@
                         required
                       />
                     </div>
+                    <div class="form-group">
+                      <div class="input-icon">
+                        <i class="el-icon-time"></i>
+                      </div>
+                      <input
+                        type="emailCode"
+                        id="sendEail"
+                        class="form-control email-code"
+                        placeholder="请输入邮箱验证码"
+                        v-model="register.emailCode"
+                        required
+                      />
+                      <button
+                        type="button"
+                        class="send-btn"
+                        @click="sendCodeBtn"
+                      >
+                        发送验证码
+                      </button>
+                    </div>
 
                     <div class="form-group">
-                      <label for="registerPassword">密码</label>
                       <div class="input-icon">
                         <i class="el-icon-lock"></i>
                       </div>
@@ -163,14 +178,13 @@
                         type="password"
                         id="registerPassword"
                         class="form-control"
-                        placeholder="6-20位字符"
+                        placeholder="请输入密码(6-20位字符)"
                         v-model="register.password"
                         required
                       />
                     </div>
 
                     <div class="form-group">
-                      <label for="registerPassword2">确认密码</label>
                       <div class="input-icon">
                         <i class="el-icon-lock"></i>
                       </div>
@@ -184,7 +198,7 @@
                       />
                     </div>
 
-                    <button type="submit" class="btn">创建账号</button>
+                    <button type="submit" class="btn" @click="registerUser">创建账号</button>
                   </form>
                 </div>
               </transition>
@@ -262,9 +276,12 @@ export default {
       register: {
         name: "",
         email: "",
+        emailCode: "",
         password: "",
         confirmPassword: "",
       },
+      countdown: 0, // 倒计时秒数
+      rightCode: '', // 后端返回的验证码
     }
   },
   methods: {
@@ -274,30 +291,76 @@ export default {
     switchToRegister() {
       this.isLogin = false
     },
+    sendCodeBtn() {
+      axios
+        .post("http://localhost:5555/authUser/email/send", {
+          email: this.register.email,
+        })
+        .then((res) => {
+          if (res.data.code === 200) {
+            //设置120秒倒计时且不可点击
+            this.showToast("验证码已发送到您的邮箱", true)
+            // 设置120秒倒计时且不可点击
+            this.countdown = 120
+
+            const countdownInterval = setInterval(() => {
+              this.countdown--
+
+              if (this.countdown <= 0) {
+                clearInterval(countdownInterval)
+              }
+            }, 1000)
+          }
+        })
+    },
+    getEmailCode(){
+      axios
+        .post("http://localhost:5555/authUser/auth/captcha", {
+          email: this.register.email,
+        })
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.rightCode = res.data.date
+          }
+        })
+    },
     handleLogin() {
       // 这里实现登录逻辑
       if (this.login.email && this.login.password) {
         axios
-          // .post("http://27.106.112.214:5555/authUser/auth/login", {
-          .post("http://27.106.112.214/#", {
+          .post("http://localhost:5555/authUser/auth/login", {
             userName: this.login.email,
             password: this.login.password,
             status: 1,
           })
           .then((res) => {
-            if (res.data.code === 200) {
-            localStorage.key = res.data.date.tokenValue
+            if (res.data.code === 200 && res.data.date) {
+              localStorage.setItem('token', res.data.date.tokenValue);
+              alert("登录成功")
+            }else{
+              alert("密码错误或用户不存在")
             }
           })
       } else {
         alert("请输入邮箱和密码")
       }
     },
+    registerUser(){
+      axios
+          .post("http://localhost:5555/authUser/no-auth/register", {
+            nickName: this.register.name,
+            email: this.register.email,
+            password: this.login.password,
+            introduce: '第一次加入YQuest，期待更多机会！',
+          })
+    },
+   
     handleRegister() {
       // 表单验证
       if (
         !this.register.name ||
         !this.register.email ||
+        !this.register.emailCode ||
         !this.register.password ||
         !this.register.confirmPassword
       ) {
@@ -323,10 +386,16 @@ export default {
         alert("请输入有效的邮箱地址")
         return
       }
+      // 验证码验证
+      this.getEmailCode
+      if (this.register.emailCode.value !== this.rightCode.value) {
+        alert("验证码错误，请重新输入")
+        return
+      }
 
       // 这里实现注册逻辑
-      console.log("注册信息:", this.register)
-      alert(`注册成功: ${this.register.name} (${this.register.email})`)
+      this.registerUser
+      
 
       // 自动切换到登录页面
       this.isLogin = true
@@ -339,6 +408,7 @@ export default {
         confirmPassword: "",
       }
     },
+     
     addFontAwesome() {
       // 检查是否已存在Font Awesome
       if (!document.querySelector('link[href*="font-awesome"]')) {
@@ -753,12 +823,12 @@ export default {
 
 .form-title {
   font-size: 1.8rem;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   text-align: center;
 }
 
 .form-group {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   position: relative;
 }
 
@@ -769,10 +839,11 @@ export default {
   color: #555;
 }
 
+/* 输入框图标 */
 .input-icon {
   position: absolute;
   left: 15px;
-  top: 69%;
+  top: 55%;
   transform: translateY(-50%);
   color: #888;
   height: 20px;
@@ -787,6 +858,23 @@ export default {
   border-radius: 10px;
   font-size: 16px;
   transition: all 0.3s;
+}
+.form-control.email-code {
+  width: 65%;
+  padding-right: 10px;
+}
+.send-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  padding: 0 25px;
+  background: #4a6cf8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
 }
 
 .form-control:focus {
