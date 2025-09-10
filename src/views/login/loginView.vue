@@ -304,7 +304,7 @@ export default {
     sendCodeBtn() {
       if (this.isButtonDisabled) return // 防止重复点击
       axios
-        .post("http://localhost:5555/authUser/email/send", {
+        .post("http://27.106.112.21:5555/authUser/email/send", {
           email: this.register.email,
         })
         .then((res) => {
@@ -320,7 +320,7 @@ export default {
     },
     getEmailCode() {
       axios
-        .post("http://localhost:5555/authUser/auth/captcha", {
+        .post("http://27.106.112.21:5555/authUser/auth/captcha", {
           email: this.register.email,
         })
         .then((res) => {
@@ -333,7 +333,7 @@ export default {
       // 这里实现登录逻辑
       if (this.login.email && this.login.password) {
         axios
-          .post("http://localhost:5555/authUser/auth/login", {
+          .post("http://27.106.112.21:5555/authUser/auth/login", {
             userName: this.login.email,
             password: this.login.password,
             status: 1,
@@ -352,7 +352,7 @@ export default {
       }
     },
     registerUser() {
-      axios.post("http://localhost:5555/authUser/no-auth/register", {
+      axios.post("http://27.106.112.21:5555/authUser/no-auth/register", {
         nickName: this.register.name,
         email: this.register.email,
         password: this.login.password,
@@ -413,7 +413,7 @@ export default {
       }
     },
     userIsLogin() {
-      axios.get("http://localhost:5555/authUser/auth/isLogin").then((res) => {
+      axios.get("http://27.106.112.21:5555/authUser/auth/isLogin").then((res) => {
         this.hasLogin = res.data.date
       })
     },
