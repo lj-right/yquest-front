@@ -44,6 +44,9 @@
           >
             <el-icon class="el-icon-search" style="width: 60px"></el-icon>
           </el-button>
+          <el-button type="primary" @click="resetMessage">
+            <div style="width: 60px ">重置</div>
+          </el-button>
         </div>
       </div>
 
@@ -201,9 +204,15 @@ export default {
         // 如果有搜索关键词，进行搜索
         this.searchByCompany();
         return;
+      }else if(this.searchKeyword.length==0){
+        this.defaultquery();
+        return;
       }
-      // 发送请求
-      this.defaultquery()
+    },
+    resetMessage() {
+      this.searchKeyword = "";
+      this.pageNo = 1;
+      this.defaultquery();
     },
   },
   mounted() {

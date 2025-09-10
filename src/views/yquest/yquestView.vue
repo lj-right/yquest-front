@@ -30,15 +30,15 @@
         <div class="hero-text">
           <h1>你的追求,我们的推荐</h1>
           <p>通过内推码快速入职，加速你的职业发展</p>
-          <div style="display: flex; justify-content: center;">
+          <div style="display: flex; justify-content: center">
             <div class="hero-actions">
-            <router-link to="/refer" class="hero-btn primary"
-              >探索内推机会</router-link
-            >
-            <router-link to="/login" class="hero-btn secondary"
-              >立即注册</router-link
-            >
-          </div>
+              <router-link to="/refer" class="hero-btn primary"
+                >探索内推机会</router-link
+              >
+              <router-link to="/login" class="hero-btn secondary"
+                >立即注册</router-link
+              >
+            </div>
           </div>
         </div>
       </section>
@@ -85,7 +85,7 @@
       <section class="jobs-section">
         <div class="section-header">
           <h2 class="section-title">热门内推职位</h2>
-          <router-link to="/refer" class="view-all"
+          <router-link to="/showRefer" class="view-all"
             >查看全部 <i class="fas fa-arrow-right"></i
           ></router-link>
         </div>
@@ -105,7 +105,9 @@
             </div>
             <div class="job-actions">
               <div class="referral-code">内推码: TXF2025</div>
-              <button class="apply-btn">立即申请</button>
+              <router-link to="/showRefer" class="apply-btn"
+                >立即申请
+              </router-link>
             </div>
           </div>
 
@@ -123,7 +125,9 @@
             </div>
             <div class="job-actions">
               <div class="referral-code">内推码: ALJ2025</div>
-              <button class="apply-btn">立即申请</button>
+              <router-link to="/showRefer" class="apply-btn"
+                >立即申请
+              </router-link>
             </div>
           </div>
 
@@ -141,7 +145,9 @@
             </div>
             <div class="job-actions">
               <div class="referral-code">内推码: HWC2025</div>
-              <button class="apply-btn">立即申请</button>
+              <router-link to="/showRefer" class="apply-btn"
+                >立即申请
+              </router-link>
             </div>
           </div>
         </div>
@@ -350,8 +356,7 @@ export default {
   display: flex;
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
-  padding-bottom:60px;
-
+  padding-bottom: 60px;
 }
 
 .hero-text {
@@ -372,10 +377,9 @@ export default {
 }
 
 .hero-actions {
-  width:350px;
+  width: 350px;
   display: flex;
   gap: 20px;
-
 }
 
 .hero-btn {
@@ -389,7 +393,6 @@ export default {
 .hero-btn.primary {
   background: linear-gradient(to right, #4a6cf8, #8a4af8);
   color: white;
-
 }
 
 .hero-btn.secondary {
@@ -568,6 +571,7 @@ export default {
 }
 
 .apply-btn {
+  text-decoration: none;
   background: linear-gradient(to right, #4a6cf8, #8a4af8);
   color: white;
   border: none;

@@ -22,11 +22,36 @@
       </div>
     </nav>
 
-    <!-- 内推码主体内容 -->
+    <!-- 作者介绍主体内容 -->
     <div class="main-content">
       <div class="page-header">
         <h1>关于作者</h1>
-        <p>随风</p>
+        <h3>随风</h3>
+      </div>
+      <div class="contact-info">
+        <div><span class="introduce-way">联系方式：</span></div>
+        <div class="contact-methods">
+          <div class="contact-card">
+            <i class="fas fa-envelope"></i>
+            <h4>邮箱</h4>
+            <a href="mailto:suifeng.king@qq.com">suifeng.king@qq.com</a>
+          </div>
+
+          <div class="contact-card">
+            <h4>Gitee</h4>
+            <a href="https://gitee.com/liujiawei_1" target="_blank"
+              >Gitee/suifeng</a
+            >
+          </div>
+
+          <div class="contact-card">
+            <i class="fas fa-blog"></i>
+            <h4>个人博客</h4>
+            <a href="https://blog.suifeng1.cn" target="_blank"
+              >Blog</a
+            >
+          </div>
+        </div>
       </div>
     </div>
 
@@ -76,7 +101,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -224,6 +248,163 @@ export default {
   color: #666;
 }
 
+/* 联系方式样式 */
+body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .page-header h1 {
+            font-size: 2.8rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .page-header p {
+            font-size: 1.4rem;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+        
+        .author-profile {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .author-avatar {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+        }
+        
+        .author-avatar img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #f1f1f1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .author-bio {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .author-bio h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .author-bio p {
+            margin-bottom: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .contact-info {
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .contact-info h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: inline-block;
+        }
+        .introduce-way {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        .contact-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .contact-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .contact-card h4 {
+            margin-bottom: 10px;
+            color: #0080ff;
+        }
+        
+        .contact-card a {
+            color: #6926e6;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .contact-card a:hover {
+            color: #0080ff;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .author-profile {
+                flex-direction: column;
+            }
+            
+            .contact-card {
+                min-width: 100%;
+            }
+        }
 
 /* 页脚样式 */
 .footer {
