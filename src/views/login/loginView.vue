@@ -16,9 +16,14 @@
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
-      <div class="nav-actions">
+      <div class="nav-actions" v-if="!hasLogin">
         <router-link to="/login" class="nav-btn btn-login">登录</router-link>
         <router-link to="/login" class="nav-btn btn-register">注册</router-link>
+      </div>
+      <div v-else>
+        <router-link to="/login" class="nav-btn btn-register"
+          >欢迎{{ nickName }}来到YQuest</router-link
+        >
       </div>
     </nav>
 
@@ -283,7 +288,9 @@ export default {
         password: "",
         confirmPassword: "",
       },
-      isButtonDisabled: false,
+      nickName: "用户", // 昵称
+      hasLogin: false, //验证登录状态
+      isButtonDisabled: false, //验证码按钮禁用状态
       rightCode: "", // 后端返回的验证码
     }
   },
@@ -307,7 +314,7 @@ export default {
             // 模拟异步操作，2秒后恢复按钮可用
             setTimeout(() => {
               this.isButtonDisabled = false
-            }, 120*1000)
+            }, 120 * 1000)
           }
         })
     },
@@ -334,6 +341,7 @@ export default {
           .then((res) => {
             if (res.data.code === 200 && res.data.date) {
               localStorage.setItem("token", res.data.date.tokenValue)
+              this.hasLogin = true
               alert("登录成功")
             } else {
               alert("密码错误或用户不存在")
@@ -404,6 +412,11 @@ export default {
         confirmPassword: "",
       }
     },
+    userIsLogin() {
+      axios.get("http://localhost:5555/authUser/auth/isLogin").then((res) => {
+        this.hasLogin = res.data.date
+      })
+    },
 
     addFontAwesome() {
       // 检查是否已存在Font Awesome
@@ -433,6 +446,9 @@ export default {
 
     // 添加气泡动画
     this.initBubbles()
+
+    //刷新登录状态
+    this.userIsLogin()
   },
 }
 </script>
