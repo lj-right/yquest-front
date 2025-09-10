@@ -32,12 +32,17 @@
       <div class="search-section">
         <div class="search-box">
           <el-input
-            placeholder="搜索公司、行业或职位..."
+            placeholder="搜索您要查找的公司内推..."
             prefix-icon="Search"
             v-model="searchKeyword"
+            @keyup.enter="searchByCompany"
           ></el-input>
-          <el-button type="primary" style="margin-left: 25px">
-            <div style="width: 60px">搜 索</div>
+          <el-button
+            type="primary"
+            style="margin-left: 25px"
+            @click="searchByCompany"
+          >
+            <el-icon class="el-icon-search" style="width: 60px"></el-icon>
           </el-button>
         </div>
       </div>
@@ -66,8 +71,12 @@
             <el-table-column prop="url" label="内推官方链接" min-width="180">
             </el-table-column>
             <el-table-column fixed="right" label="操作" width="120">
-              <template #default>
-                <el-button type="primary" link size="small"
+              <template #default="scope">
+                <el-button
+                  type="primary"
+                  link
+                  size="small"
+                  @click="referLink(scope.row.url)"
                   >前往内推地址</el-button
                 >
               </template>
@@ -75,8 +84,12 @@
           </el-table>
 
           <div class="pagination-container">
-            <el-pagination background layout="prev, pager, next" :total="50">
-            </el-pagination>
+            <el-pagination
+              @current-change="currentChange"
+              background
+              layout="prev, pager, next"
+              :total="this.total * 10"
+            />
           </div>
         </el-card>
       </div>
@@ -135,24 +148,74 @@ export default {
     return {
       tableData: [],
       searchKeyword: "",
+      pageNo: 1,
+      pageSize: 10, // 每页显示条数
     }
   },
   methods: {
-    copyReferCode(code) {
-      navigator.clipboard
-        .writeText(code)
-        .then(() => {
-          console.log("内推码已复制到剪贴板!")
-        })
-        .catch((err) => {
-          console.error("复制失败:", err)
-        })
+    referLink(url) {
+      if (url) {
+        window.open(url, "_blank") // 新标签页打开
+        // 或使用: window.location.href = url; // 当前页跳转
+      } else {
+        console.warn("无效的URL")
+      }
+    },
+    defaultquery(){
+      axios
+          .post("http://27.106.112.214:5555/refer/queryPage", {
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
+          })
+          .then((res) => {
+            this.tableData = res.data.date.result
+            this.total = res.data.date.totalPages
+            this.pageNo = 1 // 重置为第一页
+          })
+    },
+    searchByCompany() {
+      if (this.searchKeyword.trim() !== "") {
+        axios
+          .post("http://localhost:5555/refer/searchByMessage", {
+            company: this.searchKeyword,
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
+          })
+          .then((res) => {
+            this.tableData = res.data.date.result
+            this.total = res.data.date.totalPages
+            this.pageNo = 1 // 重置为第一页
+          })
+          .catch((error) => {
+            console.error("搜索请求失败:", error)
+            // 可以在这里显示错误提示
+          })
+      } else {
+        this.defaultquery;
+      }
+    },
+    // 点击页码的方法
+    currentChange(data) {
+      this.pageNo = data
+      if (this.searchKeyword.trim() !== "") {
+        // 如果有搜索关键词，进行搜索
+        this.searchByCompany();
+        return;
+      }
+      // 发送请求
+      this.defaultquery()
     },
   },
   mounted() {
-    axios.post("http://27.106.112.214:5555/refer/queryPage", {}).then((res) => {
-      this.tableData = res.data.date.result
-    })
+    axios
+      .post("http://27.106.112.214:5555/refer/queryPage", {
+        pageNo: this.pageNo,
+        pageSize: this.pageSize,
+      })
+      .then((res) => {
+        this.tableData = res.data.date.result
+        this.total = res.data.date.totalPages
+      })
   },
 }
 </script>
