@@ -4,6 +4,15 @@ module.exports = {
   parallel: false,
   publicPath: './',
   devServer: {
+    port: 8080,
+    proxy:{
+      '/api': {
+        target: 'http://localhost:5555',
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
+    },
     client:{
       overlay: false
     },

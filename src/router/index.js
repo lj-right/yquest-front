@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/refer',
     name: 'refer',
-    component: () => import('../views/yquest/referView.vue')
+    component: () => import('../views/yquest/referView.vue'),
   },
   {
     path: '/showRefer',

@@ -15,8 +15,11 @@
       </div>
 
       <div class="nav-actions">
-        <router-link to="/login" class="nav-btn btn-login">登录</router-link>
-        <router-link to="/login" class="nav-btn btn-register">注册</router-link>
+        <div>
+          <router-link to="/login" class="nav-btn btn-login">{{
+            this.$store.state.name
+          }}</router-link>
+        </div>
       </div>
     </nav>
     <!-- 顶部标签栏 -->

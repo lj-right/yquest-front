@@ -12,18 +12,16 @@
         <router-link to="/yquest" class="nav-link">首页</router-link>
         <router-link to="/showRefer" class="nav-link">内推机会</router-link>
         <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link">我要内推</router-link>
+        <router-link to="/refer" class="nav-link" >我要内推</router-link>
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
-      <div class="nav-actions" v-if="!hasLogin">
-        <router-link to="/login" class="nav-btn btn-login">登录</router-link>
-        <router-link to="/login" class="nav-btn btn-register">注册</router-link>
-      </div>
-      <div v-else>
-        <router-link to="/login" class="nav-btn btn-register"
-          >欢迎{{ nickName }}来到YQuest</router-link
-        >
+      <div class="nav-actions">
+        <div>
+          <router-link to="/login" class="nav-btn btn-login">{{
+            this.$store.state.name
+          }}</router-link>
+        </div>
       </div>
     </nav>
 
@@ -115,7 +113,7 @@
                     <div class="divider">或通过以下方式登录</div>
 
                     <div class="social-login">
-                      <button class="social-btn">
+                      <button type="button"  class="social-btn" @click="loginByWx">
                         <i class="el-icon-full-screen"></i>
                       </button>
                     </div>
@@ -210,15 +208,6 @@
                   </form>
                 </div>
               </transition>
-
-              <!-- 切换表单提示 -->
-              <div class="switch-form">
-                <span v-if="isLogin">还没有账号？</span>
-                <span v-else>已有账号？</span>
-                <a href="#" @click.prevent="isLogin = !isLogin">
-                  {{ isLogin ? "立即注册" : "马上登录" }}
-                </a>
-              </div>
             </div>
           </div>
         </div>
@@ -288,8 +277,6 @@ export default {
         password: "",
         confirmPassword: "",
       },
-      nickName: "用户", // 昵称
-      hasLogin: false, //验证登录状态
       isButtonDisabled: false, //验证码按钮禁用状态
       rightCode: "", // 后端返回的验证码
     }
@@ -301,10 +288,18 @@ export default {
     switchToRegister() {
       this.isLogin = false
     },
+    goToRefer() {
+      if (!this.$store.state.hasLogin) {
+        this.$router.push("/login")
+      } else {
+        this.$router.push("/refer")
+      }
+    },
     sendCodeBtn() {
       if (this.isButtonDisabled) return // 防止重复点击
       axios
-        .post("http://27.106.112.214:5555/authUser/email/send", {
+        // .post("/api/authUser/email/send", {
+        .post("/api/authUser/email/send", {
           email: this.register.email,
         })
         .then((res) => {
@@ -320,7 +315,7 @@ export default {
     },
     getEmailCode() {
       axios
-        .post("http://27.106.112.214:5555/authUser/auth/captcha", {
+        .post("/api/authUser/auth/captcha", {
           email: this.register.email,
         })
         .then((res) => {
@@ -330,10 +325,9 @@ export default {
         })
     },
     handleLogin() {
-      // 这里实现登录逻辑
       if (this.login.email && this.login.password) {
         axios
-          .post("http://27.106.112.214:5555/authUser/auth/login", {
+          .post("/api/authUser/auth/login", {
             userName: this.login.email,
             password: this.login.password,
             status: 1,
@@ -341,23 +335,47 @@ export default {
           .then((res) => {
             if (res.data.code === 200 && res.data.date) {
               localStorage.setItem("token", res.data.date.tokenValue)
-              this.hasLogin = true
-              alert("登录成功")
+              this.$store.state.hasLogin = true
+              this.nickName = res.data.date.nickName
+              this.$store.dispatch("setNickNameByLogin", this.login.email)
+              this.$message.success("登录成功")
             } else {
-              alert("密码错误或用户不存在")
+              this.$message.error("密码错误或用户不存在")
             }
           })
       } else {
-        alert("请输入邮箱和密码")
+        this.$message.warning("请输入邮箱和密码")
       }
     },
+    loginByWx(){
+      this.$message.info("微信登录功能正在开发中，敬请期待！")
+    },
     registerUser() {
-      axios.post("http://27.106.112.214:5555/authUser/no-auth/register", {
-        nickName: this.register.name,
-        email: this.register.email,
-        password: this.login.password,
-        introduce: "第一次加入YQuest，期待更多机会！",
-      })
+      axios
+        .post("/api/authUser/no-auth/register", {
+          nickName: this.register.name,
+          email: this.register.email,
+          password: this.login.password,
+          introduce: "第一次加入YQuest，期待更多机会！",
+        })
+        .then((res) => {
+          if (res.data.code === 200 && res.data.date) {
+            this.$message.success("注册成功")
+            // 自动切换到登录页面
+            this.isLogin = true
+
+            // 重置注册表单
+            this.register = {
+              name: "",
+              email: "",
+              emailCode: "",
+              password: "",
+              confirmPassword: "",
+            }
+          } else {
+            this.$message.error("注册失败，已注册或验证码错误")
+          }
+        })
     },
 
     handleRegister() {
@@ -369,52 +387,43 @@ export default {
         !this.register.password ||
         !this.register.confirmPassword
       ) {
-        alert("请填写所有必填项")
+        this.$message.error("请填写所有必填项")
+        return
+      }
+      //name长度限制
+      if (this.register.name.length < 1 || this.register.name.length > 5) {
+        this.$message.error("用户名长度应在1到5个字符之间")
         return
       }
 
       // 密码验证
       if (this.register.password !== this.register.confirmPassword) {
-        alert("两次输入的密码不一致！")
+        this.$message.error("两次输入的密码不一致！")
         return
       }
 
       // 密码复杂度校验
       if (this.register.password.length < 6) {
-        alert("密码长度不能小于6位！")
+        this.$message.error("密码长度不能小于6位！")
         return
       }
 
       // 邮箱验证
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(this.register.email)) {
-        alert("请输入有效的邮箱地址")
+        this.$message.error("请输入有效的邮箱地址")
         return
       }
       // 验证码验证
       this.getEmailCode
       if (this.register.emailCode.value !== this.rightCode.value) {
-        alert("验证码错误，请重新输入")
+        this.$message.error("验证码错误，请重新输入")
         return
-      }
-
-      // 这里实现注册逻辑
-      this.registerUser
-
-      // 自动切换到登录页面
-      this.isLogin = true
-
-      // 重置注册表单
-      this.register = {
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
       }
     },
     userIsLogin() {
-      axios.get("http://27.106.112.214:5555/authUser/auth/isLogin").then((res) => {
-        this.hasLogin = res.data.date
+      axios.get("/api/authUser/auth/isLogin").then((res) => {
+        this.$store.state.hasLogin = res.data.date
       })
     },
 
@@ -1017,26 +1026,6 @@ export default {
   background: #e4e7ff;
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.switch-form {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 15px;
-  color: #666;
-}
-
-.switch-form a {
-  color: #4a6cf8;
-  text-decoration: none;
-  font-weight: 600;
-  margin-left: 5px;
-  transition: all 0.3s;
-}
-
-.switch-form a:hover {
-  color: #8a4af8;
-  text-decoration: underline;
 }
 
 /* 页脚样式 */

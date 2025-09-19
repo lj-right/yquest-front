@@ -17,8 +17,11 @@
       </div>
 
       <div class="nav-actions">
-        <router-link to="/login" class="nav-btn btn-login">登录</router-link>
-        <router-link to="/login" class="nav-btn btn-register">注册</router-link>
+        <div>
+          <router-link to="/login" class="nav-btn btn-login">{{
+            this.$store.state.name
+          }}</router-link>
+        </div>
       </div>
     </nav>
 
@@ -45,7 +48,7 @@
             <el-icon class="el-icon-search" style="width: 60px"></el-icon>
           </el-button>
           <el-button type="primary" @click="resetMessage">
-            <div style="width: 60px ">重置</div>
+            <div style="width: 60px">重置</div>
           </el-button>
         </div>
       </div>
@@ -88,10 +91,12 @@
 
           <div class="pagination-container">
             <el-pagination
+              :current-page="pageNo"
+              :page-size="pageSize"
+              :total="this.total"
               @current-change="currentChange"
+              layout="total, prev, pager, next"
               background
-              layout="prev, pager, next"
-              :total="this.total * 10"
             />
           </div>
         </el-card>
@@ -153,6 +158,7 @@ export default {
       searchKeyword: "",
       pageNo: 1,
       pageSize: 10, // 每页显示条数
+      total: ''
     }
   },
   methods: {
@@ -164,55 +170,55 @@ export default {
         console.warn("无效的URL")
       }
     },
-    defaultquery(){
+    defaultquery() {
       axios
-          .post("http://27.106.112.214:5555/refer/queryPage", {
-            pageNo: this.pageNo,
-            pageSize: this.pageSize,
-          })
-          .then((res) => {
-            this.tableData = res.data.date.result
-            this.total = res.data.date.totalPages
-            this.pageNo = 1 // 重置为第一页
-          })
+        .post("http://localhost:5555/refer/queryPage", {
+          pageNo: this.pageNo,
+          pageSize: this.pageSize,
+        })
+        .then((res) => {
+          this.tableData = res.data.date.result
+          this.total =  res.data.date.total
+        })
     },
     searchByCompany() {
       if (this.searchKeyword.trim() !== "") {
+        this.pageNo = 1;
         axios
-          .post("http://27.106.112.214:5555/refer/searchByMessage", {
+          .post("http://localhost:5555/refer/searchByMessage", {
             company: this.searchKeyword,
             pageNo: this.pageNo,
             pageSize: this.pageSize,
           })
           .then((res) => {
             this.tableData = res.data.date.result
-            this.total = res.data.date.totalPages
-            this.pageNo = 1 // 重置为第一页
+            this.total =  res.data.date.total
           })
           .catch((error) => {
-            console.error("搜索请求失败:", error)
+            this.$message.error("搜索请求失败:", error)
             // 可以在这里显示错误提示
           })
       } else {
-        this.defaultquery;
+        this.defaultquery()
       }
     },
     // 点击页码的方法
-    currentChange(data) {
-      this.pageNo = data
-      if (this.searchKeyword.trim() !== "") {
-        // 如果有搜索关键词，进行搜索
-        this.searchByCompany();
-        return;
-      }else if(this.searchKeyword.length==0){
-        this.defaultquery();
-        return;
+    currentChange(page) {
+      // 确保页码有效
+      if (page >= 1) {
+        this.pageNo = page
+        // 手动触发数据刷新
+        if (this.searchKeyword.trim() !== "") {
+          this.searchByCompany()
+        } else {
+          this.defaultquery()
+        }
       }
     },
     resetMessage() {
-      this.searchKeyword = "";
-      this.pageNo = 1;
-      this.defaultquery();
+      this.searchKeyword = ""
+      this.pageNo = 1
+      this.defaultquery()
     },
   },
   mounted() {
@@ -223,7 +229,7 @@ export default {
       })
       .then((res) => {
         this.tableData = res.data.date.result
-        this.total = res.data.date.totalPages
+        this.total =  res.data.date.total
       })
   },
 }
