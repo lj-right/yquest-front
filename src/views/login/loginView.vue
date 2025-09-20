@@ -12,7 +12,7 @@
         <router-link to="/yquest" class="nav-link">首页</router-link>
         <router-link to="/showRefer" class="nav-link">内推机会</router-link>
         <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link" >我要内推</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
@@ -113,7 +113,11 @@
                     <div class="divider">或通过以下方式登录</div>
 
                     <div class="social-login">
-                      <button type="button"  class="social-btn" @click="loginByWx">
+                      <button
+                        type="button"
+                        class="social-btn"
+                        @click="loginByWx"
+                      >
                         <i class="el-icon-full-screen"></i>
                       </button>
                     </div>
@@ -335,10 +339,15 @@ export default {
           .then((res) => {
             if (res.data.code === 200 && res.data.date) {
               localStorage.setItem("token", res.data.date.tokenValue)
-              this.$store.state.hasLogin = true
+              this.$store.commit("setLoginStatus", true)
               this.nickName = res.data.date.nickName
               this.$store.dispatch("setNickNameByLogin", this.login.email)
-              this.$message.success("登录成功")
+              this.$message.success({ message: "登录成功", duration: 750 })
+              if (this.$route.query.redirect) {
+                this.$router.push(this.$route.query.redirect)
+              } else {
+                this.$router.push("/refer")
+              }
             } else {
               this.$message.error("密码错误或用户不存在")
             }
@@ -347,7 +356,7 @@ export default {
         this.$message.warning("请输入邮箱和密码")
       }
     },
-    loginByWx(){
+    loginByWx() {
       this.$message.info("微信登录功能正在开发中，敬请期待！")
     },
     registerUser() {

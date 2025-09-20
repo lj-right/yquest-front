@@ -14,7 +14,10 @@ export default new Vuex.Store({
   mutations: {
     // 修改状态的方法
     setName(state, newName) {
-      state.name = newName
+      state.name = '欢迎：'+newName
+    },
+    setLoginStatus(state, newStatus) {
+      state.hasLogin = newStatus
     }
   },
   actions: {

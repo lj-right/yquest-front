@@ -18,7 +18,7 @@
 
       <div class="nav-actions">
         <div>
-          <router-link to="/login" class="nav-btn btn-login">{{
+          <router-link to="/login" class="nav-btn btn-login" >{{
             this.$store.state.name
           }}</router-link>
         </div>
