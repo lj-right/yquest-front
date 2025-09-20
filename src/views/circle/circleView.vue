@@ -24,7 +24,7 @@
     </nav>
     <!-- 顶部标签栏 -->
     <div class="tab-bar">
-      <div class="tab active">关注</div>
+      <div class="tab">关注</div>
       <div class="tab active">推荐</div>
       <div class="tab">圈子</div>
     </div>

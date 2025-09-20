@@ -1,31 +1,7 @@
 <template>
   <div class="container-wrapper">
-    <!-- 导航栏 -->
-    <nav class="navbar">
-      <a href="#" class="navbar-brand">
-        <router-link to="/yquest" class="brand-logo"
-          >Y<span>Quest</span></router-link
-        >
-      </a>
 
-      <div class="nav-links">
-        <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
-        <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link">我要内推</router-link>
-        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
-      </div>
-
-      <div class="nav-actions">
-        <div>
-          <router-link to="/login" class="nav-btn btn-login" >{{
-            this.$store.state.name
-          }}</router-link>
-        </div>
-      </div>
-    </nav>
-
-    <!-- 内推码审核主体内容 -->
+    <!-- 用户管理主体内容 -->
     <div class="common-layout">
       <el-container>
           <el-main>
@@ -37,7 +13,7 @@
                 width="150"
               >
               </el-table-column>
-              <el-table-column prop="refercode" label="内推码" width="120">
+              <el-table-column prop="refercode" label="姓名" width="120">
               </el-table-column>
               <el-table-column prop="industry" label="行业" width="120">
               </el-table-column>

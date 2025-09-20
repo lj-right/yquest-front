@@ -24,19 +24,29 @@ const routes = [
   {
     path: "/manage",
     name: "manage",
-    component: () => import("../views/manage/manageReferView.vue"),
-    redirect: "/manage/admin",
+    component: () => import("../views/manage/manageContainer.vue"),
+    redirect: "/manage/refer",
     children: [
       {
         path: "/manage/user",
-        name: "add",
+        name: "user",
         component: () => import("../views/manage/UserView.vue"),
       },
       {
-        path: "/manage/admin",
-        name: "edit",
-        component: () => import("../views/manage/manageReferView.vue"),
+        path: "/manage/sensitive",
+        name: "sensitive",
+        component: () => import("../views/manage/SensitiveView.vue"),
       },
+      {
+        path: "/manage/circle",
+        name: "circle",
+        component: () => import("../views/manage/CircleView.vue"),
+      },
+      {
+        path: "/manage/refer",
+        name: "manageRefer",
+        component: () => import("../views/manage/manageReferView.vue"),
+      }
     ],
   },
   {

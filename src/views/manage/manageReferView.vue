@@ -1,30 +1,5 @@
 <template>
   <div class="container-wrapper">
-    <!-- 导航栏 -->
-    <nav class="navbar">
-      <a href="#" class="navbar-brand">
-        <router-link to="/yquest" class="brand-logo"
-          >Y<span>Quest</span></router-link
-        >
-      </a>
-
-      <div class="nav-links">
-        <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
-        <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link">我要内推</router-link>
-        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
-      </div>
-
-      <div class="nav-actions">
-        <div>
-          <router-link to="/login" class="nav-btn btn-login" >{{
-            this.$store.state.name
-          }}</router-link>
-        </div>
-      </div>
-    </nav>
-
     <!-- 内推码审核主体内容 -->
     <div class="common-layout">
       <el-container>
@@ -84,6 +59,39 @@ export default {
 </script>
 
 <style scoped>
+.el-header, .el-footer {
+    background-color: #B3C0D1;
+    color: #333;
+    text-align: center;
+    line-height: 60px;
+  }
+  
+  .el-aside {
+    background-color: #D3DCE6;
+    color: #333;
+    text-align: center;
+    line-height: 200px;
+  }
+  
+  .el-main {
+    background-color: #E9EEF3;
+    color: #333;
+    text-align: center;
+    line-height: 160px;
+  }
+  
+  body > .el-container {
+    margin-bottom: 40px;
+  }
+  
+  .el-container:nth-child(5) .el-aside,
+  .el-container:nth-child(6) .el-aside {
+    line-height: 260px;
+  }
+  
+  .el-container:nth-child(7) .el-aside {
+    line-height: 320px;
+  }
 /* 全局样式重置 */
 * {
   margin: 0;
