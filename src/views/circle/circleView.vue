@@ -120,8 +120,6 @@
 
 <script>
 export default {
-  name: 'LoginView',
-  // 可以在这里添加组件逻辑
 }
 </script>
 

@@ -12,7 +12,7 @@
         <router-link to="/yquest" class="nav-link">首页</router-link>
         <router-link to="/showRefer" class="nav-link">内推机会</router-link>
         <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link" @onclick="goToRefer">我要内推</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
@@ -91,23 +91,6 @@ export default {
     }
   },
   methods: {
-    copyReferCode(code) {
-      navigator.clipboard
-        .writeText(code)
-        .then(() => {
-          console.log("内推码已复制到剪贴板!")
-        })
-        .catch((err) => {
-          console.error("复制失败:", err)
-        })
-    },
-    goToRefer() {
-      if (!this.$store.state.hasLogin) {
-        this.$router.push('/login');
-      } else {
-        this.$router.push('/refer');
-      }
-    }
   },
 }
 </script>

@@ -52,7 +52,7 @@ export default {
   methods: {
   },
   mounted() {
-    axios.post("http://27.106.112.214:5555/refer/manageReferPage",{}).then((res)=>{
+    axios.post("/api/refer/manageReferPage",{}).then((res)=>{
       this.tableData = res.data.date.result;
     })
   },

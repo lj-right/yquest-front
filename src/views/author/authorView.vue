@@ -103,14 +103,6 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      tableData: [],
-      searchKeyword: "",
-    }
-  },
-}
 </script>
 
 <style scoped>

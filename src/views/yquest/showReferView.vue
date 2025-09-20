@@ -172,7 +172,7 @@ export default {
     },
     defaultquery() {
       axios
-        .post("http://localhost:5555/refer/queryPage", {
+        .post("/api/refer/queryPage", {
           pageNo: this.pageNo,
           pageSize: this.pageSize,
         })
@@ -185,7 +185,7 @@ export default {
       if (this.searchKeyword.trim() !== "") {
         this.pageNo = 1;
         axios
-          .post("http://localhost:5555/refer/searchByMessage", {
+          .post("/api/refer/searchByMessage", {
             company: this.searchKeyword,
             pageNo: this.pageNo,
             pageSize: this.pageSize,
@@ -223,7 +223,7 @@ export default {
   },
   mounted() {
     axios
-      .post("http://27.106.112.214:5555/refer/queryPage", {
+      .post("/api/refer/queryPage", {
         pageNo: this.pageNo,
         pageSize: this.pageSize,
       })
