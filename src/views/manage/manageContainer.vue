@@ -11,31 +11,37 @@
           </a>
           <div class="nav-actions">
             <div>
-              <router-link to="/login" class="nav-btn btn-login">
-                欢迎：管理员
-              </router-link>
+              <button @click="handleLogout" class="nav-btn btn-logout">
+                <i class="el-icon-switch-button"></i> 退出登录
+              </button>
             </div>
           </div>
         </nav>
       </el-header>
 
       <el-container>
-        <el-aside width="200px">
-          <router-link to="/manage/refer" class="nav-link"
-            >内推审核管理</router-link
-          ><br />
-          <router-link to="/manage/user" class="nav-link">用户管理</router-link
-          ><br />
-          <router-link to="/manage/circle" class="nav-link"
-            >交流圈管理</router-link
-          ><br />
-          <router-link to="/manage/sensitive" class="nav-link"
-            >敏感词管理</router-link
-          ><br />
+        <el-aside width="220px" class="sidebar">
+          <div class="sidebar-menu">
+            <router-link to="/manage/refer" class="menu-item">
+              内推审核管理
+            </router-link>
+            <router-link to="/manage/user" class="menu-item">
+              用户管理
+            </router-link>
+            <router-link to="/manage/circle" class="menu-item">
+              交流圈管理
+            </router-link>
+            <router-link to="/manage/sensitive" class="menu-item">
+              敏感词管理
+            </router-link>
+            <router-link to="/manage/code" class="menu-item">
+              试用码管理
+            </router-link>
+          </div>
         </el-aside>
-        <el-main> 
+        <el-main class="main-content"> 
           <router-view></router-view>
-         </el-main>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -49,7 +55,25 @@ export default {
       tableData: [],
     }
   },
-  methods: {},
+  methods: {
+    handleLogout() {
+      this.$confirm('确定要退出登录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 清除token
+        localStorage.removeItem('adminToken')
+        localStorage.removeItem('token')
+        localStorage.removeItem('rememberAdmin')
+        
+        this.$message.success('已退出登录')
+        this.$router.push('/admin/login')
+      }).catch(() => {
+        // 取消退出
+      })
+    }
+  },
   mounted() {
     axios
       .post("/api/refer/manageReferPage", {})
@@ -61,39 +85,84 @@ export default {
 </script>
 
 <style scoped>
-.el-header,
-.el-footer {
-  background-color: #b3c0d1;
-  color: #333;
-  text-align: center;
-  line-height: 60px;
+.el-header {
+  padding: 0;
+  height: auto !important;
 }
 
-.el-aside {
-  background-color: #d3dce6;
-  color: #333;
-  text-align: center;
-  line-height: 200px;
+/* 侧边栏样式 */
+.sidebar {
+  background: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  min-height: calc(100vh - 60px);
+  padding: 30px 0;
+  transition: width 0.3s ease;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px;
+}
+
+.menu-item {
+  display: block;
+  padding: 16px 20px;
+  color: #606266;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  position: relative;
+  letter-spacing: 0.3px;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border-radius: 0 3px 3px 0;
+  transition: height 0.3s ease;
+}
+
+.menu-item:hover {
+  background: #f5f7fa;
+  color: #4a6cf8;
+  padding-left: 24px;
+}
+
+.menu-item:hover::before {
+  height: 60%;
+}
+
+.menu-item.router-link-active {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.25);
+  padding-left: 24px;
+}
+
+.menu-item.router-link-active::before {
+  height: 0;
+}
+
+/* 主内容区域 */
+.main-content {
+  background-color: #f5f7fa;
+  padding: 30px;
+  min-height: calc(100vh - 60px);
 }
 
 .el-main {
-  background-color: #e9eef3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-}
-
-body > .el-container {
-  margin-bottom: 40px;
-}
-
-.el-container:nth-child(5) .el-aside,
-.el-container:nth-child(6) .el-aside {
-  line-height: 260px;
-}
-
-.el-container:nth-child(7) .el-aside {
-  line-height: 320px;
+  padding: 0;
 }
 /* 全局样式重置 */
 * {
@@ -107,8 +176,12 @@ body > .el-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
+  background: #f5f7fa;
   color: #333;
+}
+
+.el-container {
+  height: 100%;
 }
 
 /* 导航栏样式 */
@@ -141,41 +214,15 @@ body > .el-container {
   color: #8a4af8;
 }
 
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: #555;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #4a6cf8;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #4a6cf8;
-  transition: width 0.3s;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
 .nav-actions {
   display: flex;
   gap: 15px;
+}
+
+.nav-actions > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .nav-btn {
@@ -184,6 +231,13 @@ body > .el-container {
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s;
+}
+
+.btn-info {
+  background: #f0f4ff;
+  color: #4a6cf8;
+  border: 1px solid #d9e0ff;
+  cursor: default;
 }
 
 .btn-login {
@@ -198,6 +252,19 @@ body > .el-container {
   box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
 }
 
+.btn-logout {
+  background: #fff1f0;
+  color: #e74c3c;
+  border: 1px solid #ffccc7;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: #ffe4e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15);
+}
+
 .btn-register {
   background: linear-gradient(to right, #4a6cf8, #8a4af8);
   color: white;
@@ -207,5 +274,59 @@ body > .el-container {
 .btn-register:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 200px !important;
+  }
+
+  .sidebar-menu {
+    padding: 0 15px;
+  }
+
+  .menu-item {
+    font-size: 14px;
+    padding: 14px 16px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 180px !important;
+  }
+
+  .menu-item {
+    font-size: 13px;
+    padding: 12px 14px;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    position: fixed;
+    left: -220px;
+    top: 60px;
+    z-index: 999;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .main-content {
+    padding: 15px;
+    width: 100%;
+  }
 }
 </style>

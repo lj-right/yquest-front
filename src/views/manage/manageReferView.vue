@@ -1,208 +1,719 @@
 <template>
-  <div class="container-wrapper">
-    <!-- 内推码审核主体内容 -->
-    <div class="common-layout">
-      <el-container>
-          <el-main>
-            <el-table :data="tableData" border style="width: 100%">
-              <el-table-column
-                fixed
-                prop="company"
-                label="公司名称"
-                width="150"
+  <div class="refer-manage-container">
+    <div class="content-wrapper">
+      <!-- 页面头部 -->
+      <div class="page-header">
+        <h2 class="page-title">内推审核管理</h2>
+        <div class="header-actions">
+          <el-button type="primary" icon="el-icon-refresh" @click="fetchData">
+            刷新
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="table-container">
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          v-loading="loading"
+          :header-cell-style="{ background: '#f5f7fa', color: '#606266', textAlign: 'center' }"
+        >
+          <el-table-column prop="id" label="ID" width="80" align="center">
+          </el-table-column>
+          <el-table-column prop="company" label="公司名称" min-width="150" align="center">
+          </el-table-column>
+          <el-table-column prop="refercode" label="内推码" width="150" align="center">
+            <template slot-scope="scope">
+              <span class="code-text">{{ scope.row.refercode }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="industry" label="行业" width="120" align="center">
+          </el-table-column>
+          <el-table-column prop="name" label="提交人" width="120" align="center">
+          </el-table-column>
+          <el-table-column prop="email" label="提交人邮箱" min-width="200" align="center">
+          </el-table-column>
+          <el-table-column prop="sort" label="热门排序" width="100" align="center">
+          </el-table-column>
+          <el-table-column prop="description" label="描述" min-width="150" align="center" show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column label="操作" width="280" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="success"
+                size="small"
+                icon="el-icon-check"
+                @click="handleApprove(scope.row)"
               >
-              </el-table-column>
-              <el-table-column prop="refercode" label="内推码" width="120">
-              </el-table-column>
-              <el-table-column prop="industry" label="行业" width="120">
-              </el-table-column>
-              <el-table-column prop="name" label="提交人" width="120">
-              </el-table-column>
-              <el-table-column prop="email" label="提交人邮箱" width="300">
-              </el-table-column>
-              <el-table-column prop="sort" label="热门排序" width="120">
-              </el-table-column>
-              <el-table-column fixed="description" label="描述" width="100">
-                <template slot-scope="scope">
-                  <el-button
-                    @click="passClick(scope.row)"
-                    type="text"
-                    size="small"
-                    >通过</el-button
-                  >
-                  <el-button type="text" size="small">编辑</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-main>
-      </el-container>
+                通过
+              </el-button>
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-edit"
+                @click="handleEdit(scope.row)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                type="info"
+                size="small"
+                icon="el-icon-view"
+                @click="handleView(scope.row)"
+              >
+                查看
+              </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pagination.pageNo"
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pagination.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="pagination.total"
+          >
+          </el-pagination>
+        </div>
+      </div>
     </div>
+
+    <!-- 查看详情对话框 -->
+    <el-dialog
+      title="内推详情"
+      :visible.sync="viewDialogVisible"
+      width="700px"
+      :close-on-click-modal="false"
+    >
+      <div class="detail-content" v-if="currentRow">
+        <div class="detail-item">
+          <span class="detail-label">ID：</span>
+          <span class="detail-value">{{ currentRow.id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">公司名称：</span>
+          <span class="detail-value">{{ currentRow.company }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">内推码：</span>
+          <span class="detail-value code-highlight">{{ currentRow.refercode }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">行业：</span>
+          <span class="detail-value">{{ currentRow.industry }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">提交人：</span>
+          <span class="detail-value">{{ currentRow.name }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">提交人邮箱：</span>
+          <span class="detail-value">{{ currentRow.email }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">热门排序：</span>
+          <span class="detail-value">{{ currentRow.sort }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">描述：</span>
+          <span class="detail-value">{{ currentRow.description || '-' }}</span>
+        </div>
+        <div class="detail-item" v-if="currentRow.url">
+          <span class="detail-label">内推地址：</span>
+          <span class="detail-value">
+            <a :href="currentRow.url" target="_blank" class="url-link">{{ currentRow.url }}</a>
+          </span>
+        </div>
+        <div class="detail-item" v-if="currentRow.createdBy">
+          <span class="detail-label">创建人：</span>
+          <span class="detail-value">{{ currentRow.createdBy }}</span>
+        </div>
+        <div class="detail-item" v-if="currentRow.createdTime">
+          <span class="detail-label">创建时间：</span>
+          <span class="detail-value">{{ formatDate(currentRow.createdTime) }}</span>
+        </div>
+        <div class="detail-item" v-if="currentRow.updatedBy">
+          <span class="detail-label">更新人：</span>
+          <span class="detail-value">{{ currentRow.updatedBy }}</span>
+        </div>
+        <div class="detail-item" v-if="currentRow.updatedTime">
+          <span class="detail-label">更新时间：</span>
+          <span class="detail-value">{{ formatDate(currentRow.updatedTime) }}</span>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="viewDialogVisible = false">关 闭</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 编辑对话框 -->
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="editDialogVisible"
+      width="600px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="form" :rules="rules" ref="form" label-width="120px">
+        <el-form-item label="公司名称" prop="company">
+          <el-input v-model="form.company" placeholder="请输入公司名称"></el-input>
+        </el-form-item>
+        <el-form-item label="内推码" prop="refercode">
+          <el-input v-model="form.refercode" placeholder="请输入内推码"></el-input>
+        </el-form-item>
+        <el-form-item label="行业" prop="industry">
+          <el-input v-model="form.industry" placeholder="请输入行业"></el-input>
+        </el-form-item>
+        <el-form-item label="提交人" prop="name">
+          <el-input v-model="form.name" placeholder="请输入提交人"></el-input>
+        </el-form-item>
+        <el-form-item label="提交人邮箱" prop="email">
+          <el-input v-model="form.email" placeholder="请输入提交人邮箱"></el-input>
+        </el-form-item>
+        <el-form-item label="热门排序" prop="sort">
+          <el-input-number v-model="form.sort" :min="0" :max="9999" style="width: 100%"></el-input-number>
+        </el-form-item>
+        <el-form-item label="内推地址" prop="url">
+          <el-input v-model="form.url" placeholder="请输入内推地址"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input
+            type="textarea"
+            v-model="form.description"
+            placeholder="请输入描述"
+            :rows="4"
+            maxlength="500"
+            show-word-limit
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitLoading">
+          确 定
+        </el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios"
+
 export default {
+  name: "ManageReferView",
   data() {
     return {
+      // 表格数据
       tableData: [],
+      loading: false,
+      // 分页参数
+      pagination: {
+        pageNo: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      // 查看对话框
+      viewDialogVisible: false,
+      currentRow: null,
+      // 编辑对话框
+      editDialogVisible: false,
+      dialogTitle: "",
+      submitLoading: false,
+      // 表单数据
+      form: {
+        id: null,
+        company: "",
+        refercode: "",
+        industry: "",
+        name: "",
+        email: "",
+        sort: 0,
+        description: "",
+        url: "",
+      },
+      // 表单验证规则
+      rules: {
+        company: [
+          { required: true, message: "请输入公司名称", trigger: "blur" },
+        ],
+        refercode: [
+          { required: true, message: "请输入内推码", trigger: "blur" },
+        ],
+        industry: [
+          { required: true, message: "请输入行业", trigger: "blur" },
+        ],
+        name: [
+          { required: true, message: "请输入提交人", trigger: "blur" },
+        ],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" },
+        ],
+        sort: [
+          { required: true, message: "请输入热门排序", trigger: "blur" },
+        ],
+      },
     }
   },
-  methods: {
-  },
   mounted() {
-    axios.post("/api/refer/manageReferPage",{}).then((res)=>{
-      this.tableData = res.data.date.result;
-    })
+    this.fetchData()
+  },
+  methods: {
+    // 获取数据
+    fetchData() {
+      this.loading = true
+      const params = {
+        pageNo: this.pagination.pageNo,
+        pageSize: this.pagination.pageSize,
+      }
+      
+      axios
+        .post("/api/refer/manageReferPage", params)
+        .then((res) => {
+          if (res.data.code === 200 && res.data.date) {
+            this.tableData = res.data.date.result || []
+            this.pagination.total = res.data.date.total || 0
+          } else {
+            this.$message.error(res.data.message || "获取数据失败")
+          }
+        })
+        .catch((error) => {
+          console.error("获取数据失败：", error)
+          this.$message.error("获取数据失败，请稍后重试")
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+
+    // 审核通过
+    handleApprove(row) {
+      this.$confirm(`确定要通过"${row.company}"的内推申请吗？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success",
+      })
+        .then(() => {
+          // 这里可以调用审核通过的接口，目前使用编辑接口更新状态
+          // 根据实际后端接口调整
+          this.$message.success("审核通过")
+          this.fetchData()
+        })
+        .catch(() => {
+          // 取消操作
+        })
+    },
+
+    // 查看详情
+    handleView(row) {
+      this.currentRow = row
+      this.viewDialogVisible = true
+    },
+
+    // 编辑
+    handleEdit(row) {
+      this.dialogTitle = "编辑内推信息"
+      this.form = {
+        id: row.id,
+        company: row.company,
+        refercode: row.refercode,
+        industry: row.industry,
+        name: row.name,
+        email: row.email,
+        sort: row.sort,
+        description: row.description,
+        url: row.url,
+      }
+      this.editDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.form.clearValidate()
+      })
+    },
+
+    // 提交表单
+    handleSubmit() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.submitLoading = true
+          // 编辑
+          axios
+            .put("/api/refer/edit", this.form)
+            .then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("更新成功")
+                this.editDialogVisible = false
+                this.fetchData()
+              } else {
+                this.$message.error(res.data.message || "更新失败")
+              }
+            })
+            .catch((error) => {
+              console.error("更新失败：", error)
+              this.$message.error("更新失败，请稍后重试")
+            })
+            .finally(() => {
+              this.submitLoading = false
+            })
+        }
+      })
+    },
+
+    // 删除
+    handleDelete(row) {
+      this.$confirm(`确定要删除"${row.company}"的内推信息吗？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          axios
+            .delete("/api/refer/deleteById", {
+              data: {
+                id: row.id,
+              },
+            })
+            .then((res) => {
+              if (res.data === true || res.data.code === 200) {
+                this.$message.success("删除成功")
+                this.fetchData()
+              } else {
+                this.$message.error(res.data.message || "删除失败")
+              }
+            })
+            .catch((error) => {
+              console.error("删除失败：", error)
+              this.$message.error("删除失败，请稍后重试")
+            })
+        })
+        .catch(() => {
+          // 取消删除
+        })
+    },
+
+    // 每页条数改变
+    handleSizeChange(val) {
+      this.pagination.pageSize = val
+      this.pagination.pageNo = 1
+      this.fetchData()
+    },
+
+    // 当前页改变
+    handleCurrentChange(val) {
+      this.pagination.pageNo = val
+      this.fetchData()
+    },
+
+    // 格式化日期
+    formatDate(dateStr) {
+      if (!dateStr) return '-'
+      try {
+        const date = new Date(dateStr)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        const seconds = String(date.getSeconds()).padStart(2, '0')
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      } catch (error) {
+        return dateStr
+      }
+    },
   },
 }
 </script>
 
 <style scoped>
-.el-header, .el-footer {
-    background-color: #B3C0D1;
-    color: #333;
-    text-align: center;
-    line-height: 60px;
-  }
-  
-  .el-aside {
-    background-color: #D3DCE6;
-    color: #333;
-    text-align: center;
-    line-height: 200px;
-  }
-  
-  .el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-    line-height: 160px;
-  }
-  
-  body > .el-container {
-    margin-bottom: 40px;
-  }
-  
-  .el-container:nth-child(5) .el-aside,
-  .el-container:nth-child(6) .el-aside {
-    line-height: 260px;
-  }
-  
-  .el-container:nth-child(7) .el-aside {
-    line-height: 320px;
-  }
-/* 全局样式重置 */
-* {
-  margin: 0;
+.refer-manage-container {
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.container-wrapper {
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
-  color: #333;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100%;
 }
 
-/* 导航栏样式 */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 5%;
+.content-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  padding: 24px 20px 0;
+}
+
+/* 页面头部 */
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  margin-bottom: 24px;
+  padding: 0;
 }
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-logo {
-  text-decoration: none;
+.page-title {
   font-size: 24px;
-  font-weight: 700;
-  color: #4a6cf8;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
 }
 
-.brand-logo span {
-  color: #8a4af8;
-}
-
-.nav-links {
+.header-actions {
   display: flex;
-  gap: 30px;
+  gap: 12px;
 }
 
-.nav-link {
-  color: #555;
-  text-decoration: none;
+/* 表格容器 */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+
+/* 内推码文本样式 */
+.code-text {
+  font-family: 'Courier New', Courier, monospace;
   font-weight: 500;
-  transition: color 0.3s;
-  position: relative;
-}
-
-.nav-link:hover {
   color: #4a6cf8;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #4a6cf8;
-  transition: width 0.3s;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-actions {
-  display: flex;
-  gap: 15px;
-}
-
-.nav-btn {
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.btn-login {
   background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
 }
 
-.btn-login:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
+/* Element UI 表格样式覆盖 */
+.table-container::v-deep .el-table {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.btn-register {
-  background: linear-gradient(to right, #4a6cf8, #8a4af8);
-  color: white;
+.table-container::v-deep .el-table th {
+  font-weight: 600;
+}
+
+.table-container::v-deep .el-table__row:hover {
+  background-color: #f5f7fa;
+}
+
+.table-container::v-deep .el-button--primary {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
   border: none;
 }
 
-.btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3);
+.table-container::v-deep .el-button--primary:hover {
+  opacity: 0.9;
+}
+
+.table-container::v-deep .el-button--success {
+  background: #67c23a;
+  border: none;
+}
+
+.table-container::v-deep .el-button--success:hover {
+  background: #85ce61;
+}
+
+.table-container::v-deep .el-button--info {
+  background: #909399;
+  border: none;
+}
+
+.table-container::v-deep .el-button--info:hover {
+  background: #a6a9ad;
+}
+
+.table-container::v-deep .el-button--danger {
+  background: #f56c6c;
+  border: none;
+}
+
+.table-container::v-deep .el-button--danger:hover {
+  background: #f78989;
+}
+
+/* 分页容器 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 详情内容样式 */
+.detail-content {
+  padding: 10px 0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  flex-shrink: 0;
+  width: 120px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.detail-value {
+  flex: 1;
+  color: #2d3748;
+  word-break: break-all;
+}
+
+.code-highlight {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+  color: #4a6cf8;
+  background: #f0f4ff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.url-link {
+  color: #4a6cf8;
+  text-decoration: none;
+  border-bottom: 1px solid #4a6cf8;
+  transition: all 0.3s;
+}
+
+.url-link:hover {
+  color: #8a4af8;
+  border-bottom-color: #8a4af8;
+}
+
+/* 对话框样式 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Element UI 对话框样式覆盖 */
+::v-deep .el-dialog__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+::v-deep .el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+::v-deep .el-dialog__body {
+  padding: 24px;
+}
+
+::v-deep .el-form-item__label {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+::v-deep .el-input__inner {
+  border-radius: 6px;
+}
+
+::v-deep .el-input__inner:focus {
+  border-color: #4a6cf8;
+}
+
+::v-deep .el-textarea__inner:focus {
+  border-color: #4a6cf8;
+}
+
+/* 分页样式 */
+::v-deep .el-pagination {
+  font-weight: normal;
+}
+
+::v-deep .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #4a6cf8;
+}
+
+::v-deep .el-pagination.is-background .el-pager li:hover {
+  color: #4a6cf8;
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .content-wrapper {
+    max-width: 1200px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .content-wrapper {
+    max-width: 960px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 20px 15px 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .table-container {
+    padding: 16px;
+    overflow-x: auto;
+  }
+
+  .pagination-container {
+    justify-content: center;
+  }
+
+  ::v-deep .el-dialog {
+    width: 90% !important;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-label {
+    margin-bottom: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-wrapper {
+    padding: 16px 10px 0;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .table-container {
+    padding: 12px;
+  }
 }
 </style>
