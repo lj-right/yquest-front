@@ -282,7 +282,7 @@ export default {
         confirmPassword: "",
       },
       isButtonDisabled: false, //验证码按钮禁用状态
-      rightCode: "", // 后端返回的验证码
+      rightCode: "", // 后端返回的验证码校验true(false)
     }
   },
   methods: {
@@ -321,6 +321,7 @@ export default {
       axios
         .post("/api/authUser/auth/captcha", {
           email: this.register.email,
+          extJson: this.register.emailCode,
         })
         .then((res) => {
           if (res.data.code === 200) {
@@ -346,7 +347,7 @@ export default {
               if (this.$route.query.redirect) {
                 this.$router.push(this.$route.query.redirect)
               } else {
-                this.$router.push("/refer")
+                this.$router.push("/")
               }
             } else {
               this.$message.error("密码错误或用户不存在")
@@ -425,7 +426,7 @@ export default {
       }
       // 验证码验证
       this.getEmailCode
-      if (this.register.emailCode.value !== this.rightCode.value) {
+      if (this.rightCode.value !== true) {
         this.$message.error("验证码错误，请重新输入")
         return
       }
