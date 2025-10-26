@@ -4,23 +4,27 @@
       <el-header>
         <!-- 导航栏 -->
         <nav class="navbar">
-          <a href="#" class="navbar-brand">
-            <router-link to="/yquest" class="brand-logo"
-              >YQuest <span>后台管理</span></router-link
-            >
-          </a>
+          <div class="navbar-left">
+            <button @click="toggleSidebar" class="menu-toggle">
+              <i class="el-icon-menu"></i>
+            </button>
+            <a href="#" class="navbar-brand">
+              <router-link to="/yquest" class="brand-logo"
+                >YQuest <span>后台管理</span></router-link
+              >
+            </a>
+          </div>
           <div class="nav-actions">
-            <div>
-              <button @click="handleLogout" class="nav-btn btn-logout">
-                <i class="el-icon-switch-button"></i> 退出登录
-              </button>
-            </div>
+            <button @click="handleLogout" class="nav-btn btn-logout">
+              <i class="el-icon-switch-button"></i> 退出登录
+            </button>
           </div>
         </nav>
       </el-header>
 
       <el-container>
-        <el-aside width="220px" class="sidebar">
+        <el-aside width="220px" :class="['sidebar', { 'sidebar-visible': sidebarVisible }]">
+          <div class="sidebar-overlay" @click="closeSidebar" v-if="sidebarVisible"></div>
           <div class="sidebar-menu">
             <router-link to="/manage/refer" class="menu-item">
               内推审核管理
@@ -53,9 +57,16 @@ export default {
   data() {
     return {
       tableData: [],
+      sidebarVisible: false,
     }
   },
   methods: {
+    toggleSidebar() {
+      this.sidebarVisible = !this.sidebarVisible
+    },
+    closeSidebar() {
+      this.sidebarVisible = false
+    },
     handleLogout() {
       this.$confirm('确定要退出登录吗？', '提示', {
         confirmButtonText: '确定',
@@ -88,6 +99,10 @@ export default {
 .el-header {
   padding: 0;
   height: auto !important;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
 }
 
 /* 侧边栏样式 */
@@ -96,7 +111,13 @@ export default {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   min-height: calc(100vh - 60px);
   padding: 30px 0;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 999;
+}
+
+.sidebar-overlay {
+  display: none;
 }
 
 .sidebar-menu {
@@ -157,8 +178,9 @@ export default {
 /* 主内容区域 */
 .main-content {
   background-color: #f5f7fa;
-  padding: 30px;
+  padding: 0;
   min-height: calc(100vh - 60px);
+  overflow-x: hidden;
 }
 
 .el-main {
@@ -188,13 +210,32 @@ export default {
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 5%;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #4a6cf8;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.menu-toggle:hover {
+  background: #f0f4ff;
 }
 
 .navbar-brand {
@@ -277,56 +318,86 @@ export default {
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
-  .sidebar {
-    width: 200px !important;
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 15px 15px;
   }
 
-  .sidebar-menu {
-    padding: 0 15px;
+  .brand-logo {
+    font-size: 20px;
   }
 
-  .menu-item {
-    font-size: 14px;
-    padding: 14px 16px;
-  }
-
-  .main-content {
-    padding: 20px;
+  .brand-logo span {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    width: 180px !important;
+  .menu-toggle {
+    display: block;
   }
 
-  .menu-item {
-    font-size: 13px;
-    padding: 12px 14px;
-  }
-
-  .main-content {
-    padding: 15px;
-  }
-}
-
-@media (max-width: 576px) {
   .sidebar {
     position: fixed;
     left: -220px;
     top: 60px;
-    z-index: 999;
-    transition: left 0.3s ease;
+    height: calc(100vh - 60px);
+    z-index: 1000;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
   }
 
-  .sidebar.show {
+  .sidebar-visible {
+    left: 0 !important;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 60px;
     left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
   }
 
-  .main-content {
-    padding: 15px;
-    width: 100%;
+  .nav-actions {
+    gap: 5px;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .nav-btn i {
+    display: inline;
+  }
+
+  .brand-logo span {
+    display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 12px 10px;
+  }
+
+  .brand-logo {
+    font-size: 18px;
+  }
+
+  .nav-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .menu-item {
+    font-size: 14px;
+    padding: 14px 20px;
+  }
+}
+
 </style>
+

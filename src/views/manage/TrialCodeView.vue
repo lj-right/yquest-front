@@ -454,27 +454,58 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .code-container {
+    padding: 20px 15px;
+  }
+
   .content-wrapper {
-    padding: 20px 15px 0;
+    padding: 0;
+    max-width: 100%;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 22px;
   }
 
   .table-container {
     padding: 16px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  ::v-deep .el-table {
+    min-width: 800px;
+  }
+
+  ::v-deep .el-table th,
+  ::v-deep .el-table td {
+    padding: 10px 8px;
   }
 
   .pagination-container {
     justify-content: center;
+    padding: 16px 0;
+  }
+
+  ::v-deep .el-pagination {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   ::v-deep .el-dialog {
     width: 90% !important;
+    margin-top: 5vh !important;
+  }
+
+  ::v-deep .el-dialog__body {
+    padding: 20px 16px;
   }
 
   .detail-item {
@@ -488,8 +519,8 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .content-wrapper {
-    padding: 16px 10px 0;
+  .code-container {
+    padding: 16px 10px;
   }
 
   .page-title {
@@ -498,6 +529,24 @@ export default {
 
   .table-container {
     padding: 12px;
+  }
+
+  ::v-deep .el-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  ::v-deep .el-table {
+    font-size: 13px;
+  }
+
+  ::v-deep .el-pagination__total,
+  ::v-deep .el-pagination__jump {
+    display: none;
+  }
+
+  .trial-code {
+    font-size: 11px;
   }
 }
 </style>

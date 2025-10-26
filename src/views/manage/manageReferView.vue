@@ -1,14 +1,9 @@
 <template>
-  <div class="refer-manage-container">
+  <div class="refer-container">
     <div class="content-wrapper">
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">内推审核管理</h2>
-        <div class="header-actions">
-          <el-button type="primary" icon="el-icon-refresh" @click="fetchData">
-            刷新
-          </el-button>
-        </div>
       </div>
 
       <!-- 数据表格 -->
@@ -25,7 +20,7 @@
           </el-table-column>
           <el-table-column prop="refercode" label="内推码" width="150" align="center">
             <template slot-scope="scope">
-              <span class="code-text">{{ scope.row.refercode }}</span>
+              <span class="refer-code">{{ scope.row.refercode }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="industry" label="行业" width="120" align="center">
@@ -153,7 +148,7 @@
         <div class="detail-item" v-if="currentRow.updatedTime">
           <span class="detail-label">更新时间：</span>
           <span class="detail-value">{{ formatDate(currentRow.updatedTime) }}</span>
-        </div>
+    </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="viewDialogVisible = false">关 闭</el-button>
@@ -438,7 +433,7 @@ export default {
 </script>
 
 <style scoped>
-.refer-manage-container {
+.refer-container {
   padding: 0;
   display: flex;
   justify-content: center;
@@ -468,11 +463,6 @@ export default {
   margin: 0;
 }
 
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
 /* 表格容器 */
 .table-container {
   background: white;
@@ -482,15 +472,16 @@ export default {
   margin: 0 auto;
 }
 
-/* 内推码文本样式 */
-.code-text {
+/* 内推码样式 */
+.refer-code {
   font-family: 'Courier New', Courier, monospace;
-  font-weight: 500;
+  font-weight: 600;
   color: #4a6cf8;
   background: #f0f4ff;
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 13px;
+  display: inline-block;
 }
 
 /* Element UI 表格样式覆盖 */
@@ -670,27 +661,62 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .refer-container {
+    padding: 20px 15px;
+  }
+
   .content-wrapper {
-    padding: 20px 15px 0;
+    padding: 0;
+    max-width: 100%;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 22px;
   }
 
   .table-container {
     padding: 16px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  ::v-deep .el-table {
+    min-width: 900px;
+  }
+
+  ::v-deep .el-table th,
+  ::v-deep .el-table td {
+    padding: 10px 8px;
+  }
+
+  ::v-deep .el-table__fixed-right {
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
   }
 
   .pagination-container {
     justify-content: center;
+    padding: 16px 0;
+  }
+
+  ::v-deep .el-pagination {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   ::v-deep .el-dialog {
     width: 90% !important;
+    margin-top: 5vh !important;
+  }
+
+  ::v-deep .el-dialog__body {
+    padding: 20px 16px;
   }
 
   .detail-item {
@@ -704,8 +730,8 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .content-wrapper {
-    padding: 16px 10px 0;
+  .refer-container {
+    padding: 16px 10px;
   }
 
   .page-title {
@@ -714,6 +740,58 @@ export default {
 
   .table-container {
     padding: 12px;
+  }
+
+  ::v-deep .el-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  ::v-deep .el-button--small {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  ::v-deep .el-table {
+    font-size: 13px;
+    min-width: 1000px;
+  }
+
+  ::v-deep .el-pagination__total,
+  ::v-deep .el-pagination__jump {
+    display: none;
+  }
+
+  .refer-code {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  ::v-deep .el-table .cell {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .refer-container {
+    padding: 12px 8px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .table-container {
+    padding: 10px;
+  }
+
+  ::v-deep .el-button--small {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  ::v-deep .el-button--small [class*="el-icon-"] {
+    font-size: 12px;
   }
 }
 </style>
