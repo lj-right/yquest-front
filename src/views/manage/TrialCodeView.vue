@@ -5,7 +5,7 @@
       <div class="page-header">
         <h2 class="page-title">试用码管理</h2>
         <div class="header-actions">
-          <el-button type="primary" icon="el-icon-refresh" @click="fetchData">
+          <el-button type="primary" icon="el-icon-refresh" @click="fetchData" class="header-btn">
             刷新
           </el-button>
         </div>
@@ -89,6 +89,7 @@
       :visible.sync="dialogVisible"
       width="600px"
       :close-on-click-modal="false"
+      :modal="false"
     >
       <div class="detail-content" v-if="currentRow">
         <div class="detail-item">
@@ -289,7 +290,17 @@ export default {
 
 .header-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
+}
+
+.header-btn {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border: none;
+}
+
+.header-btn:hover {
+  opacity: 0.9;
 }
 
 /* 表格容器 */

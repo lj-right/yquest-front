@@ -4,6 +4,11 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">内推审核管理</h2>
+        <div class="header-actions">
+          <el-button type="primary" icon="el-icon-refresh" @click="fetchData" class="header-btn">
+            刷新
+          </el-button>
+        </div>
       </div>
 
       <!-- 数据表格 -->
@@ -33,15 +38,15 @@
           </el-table-column>
           <el-table-column prop="description" label="描述" min-width="150" align="center" show-overflow-tooltip>
           </el-table-column>
-          <el-table-column label="操作" width="280" align="center" fixed="right">
+          <el-table-column label="操作" width="180" align="center" fixed="right">
             <template slot-scope="scope">
               <el-button
-                type="success"
+                type="primary"
                 size="small"
-                icon="el-icon-check"
-                @click="handleApprove(scope.row)"
+                icon="el-icon-s-check"
+                @click="handleAudit(scope.row)"
               >
-                通过
+                审核
               </el-button>
               <el-button
                 type="primary"
@@ -50,22 +55,6 @@
                 @click="handleEdit(scope.row)"
               >
                 编辑
-              </el-button>
-              <el-button
-                type="info"
-                size="small"
-                icon="el-icon-view"
-                @click="handleView(scope.row)"
-              >
-                查看
-              </el-button>
-              <el-button
-                type="danger"
-                size="small"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >
-                删除
               </el-button>
             </template>
           </el-table-column>
@@ -87,80 +76,13 @@
       </div>
     </div>
 
-    <!-- 查看详情对话框 -->
-    <el-dialog
-      title="内推详情"
-      :visible.sync="viewDialogVisible"
-      width="700px"
-      :close-on-click-modal="false"
-    >
-      <div class="detail-content" v-if="currentRow">
-        <div class="detail-item">
-          <span class="detail-label">ID：</span>
-          <span class="detail-value">{{ currentRow.id }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">公司名称：</span>
-          <span class="detail-value">{{ currentRow.company }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">内推码：</span>
-          <span class="detail-value code-highlight">{{ currentRow.refercode }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">行业：</span>
-          <span class="detail-value">{{ currentRow.industry }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">提交人：</span>
-          <span class="detail-value">{{ currentRow.name }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">提交人邮箱：</span>
-          <span class="detail-value">{{ currentRow.email }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">热门排序：</span>
-          <span class="detail-value">{{ currentRow.sort }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">描述：</span>
-          <span class="detail-value">{{ currentRow.description || '-' }}</span>
-        </div>
-        <div class="detail-item" v-if="currentRow.url">
-          <span class="detail-label">内推地址：</span>
-          <span class="detail-value">
-            <a :href="currentRow.url" target="_blank" class="url-link">{{ currentRow.url }}</a>
-          </span>
-        </div>
-        <div class="detail-item" v-if="currentRow.createdBy">
-          <span class="detail-label">创建人：</span>
-          <span class="detail-value">{{ currentRow.createdBy }}</span>
-        </div>
-        <div class="detail-item" v-if="currentRow.createdTime">
-          <span class="detail-label">创建时间：</span>
-          <span class="detail-value">{{ formatDate(currentRow.createdTime) }}</span>
-        </div>
-        <div class="detail-item" v-if="currentRow.updatedBy">
-          <span class="detail-label">更新人：</span>
-          <span class="detail-value">{{ currentRow.updatedBy }}</span>
-        </div>
-        <div class="detail-item" v-if="currentRow.updatedTime">
-          <span class="detail-label">更新时间：</span>
-          <span class="detail-value">{{ formatDate(currentRow.updatedTime) }}</span>
-    </div>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="viewDialogVisible = false">关 闭</el-button>
-      </span>
-    </el-dialog>
-
     <!-- 编辑对话框 -->
     <el-dialog
       :title="dialogTitle"
       :visible.sync="editDialogVisible"
       width="600px"
       :close-on-click-modal="false"
+      :modal="false"
     >
       <el-form :model="form" :rules="rules" ref="form" label-width="120px">
         <el-form-item label="公司名称" prop="company">
@@ -202,6 +124,42 @@
         </el-button>
       </span>
     </el-dialog>
+
+    <!-- 审核对话框 -->
+    <el-dialog
+      title="审核内推"
+      :visible.sync="auditDialogVisible"
+      width="500px"
+      :close-on-click-modal="false"
+      :modal="false"
+    >
+      <div class="audit-content" v-if="auditRow">
+        <p style="margin-bottom: 20px; color: #606266;">请选择审核结果：</p>
+        <el-form :model="auditRow" label-width="100px">
+          <el-form-item label="公司名称">
+            <span>{{ auditRow.company }}</span>
+          </el-form-item>
+          <el-form-item label="内推码">
+            <span class="refer-code">{{ auditRow.refercode }}</span>
+          </el-form-item>
+          <el-form-item label="行业">
+            <span>{{ auditRow.industry }}</span>
+          </el-form-item>
+          <el-form-item label="提交人">
+            <span>{{ auditRow.name }}</span>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="auditDialogVisible = false">取 消</el-button>
+        <el-button type="danger" @click="handleReject">
+          拒绝
+        </el-button>
+        <el-button type="success" @click="handlePass">
+          通过
+        </el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -221,13 +179,13 @@ export default {
         pageSize: 10,
         total: 0,
       },
-      // 查看对话框
-      viewDialogVisible: false,
-      currentRow: null,
       // 编辑对话框
       editDialogVisible: false,
       dialogTitle: "",
       submitLoading: false,
+      // 审核对话框
+      auditDialogVisible: false,
+      auditRow: null,
       // 表单数据
       form: {
         id: null,
@@ -295,28 +253,52 @@ export default {
         })
     },
 
-    // 审核通过
-    handleApprove(row) {
-      this.$confirm(`确定要通过"${row.company}"的内推申请吗？`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "success",
-      })
-        .then(() => {
-          // 这里可以调用审核通过的接口，目前使用编辑接口更新状态
-          // 根据实际后端接口调整
-          this.$message.success("审核通过")
-          this.fetchData()
+    // 审核（打开审核对话框）
+    handleAudit(row) {
+      this.auditRow = row
+      this.auditDialogVisible = true
+    },
+
+    // 通过审核
+    handlePass() {
+      axios
+        .put("/api/refer/passRefer", this.auditRow)
+        .then((res) => {
+          if (res.data === true || res.data.code === 200) {
+            this.$message.success("审核通过")
+            this.auditDialogVisible = false
+            this.fetchData()
+          } else {
+            this.$message.error(res.data.message || "操作失败")
+          }
         })
-        .catch(() => {
-          // 取消操作
+        .catch((error) => {
+          console.error("操作失败：", error)
+          this.$message.error("操作失败，请稍后重试")
         })
     },
 
-    // 查看详情
-    handleView(row) {
-      this.currentRow = row
-      this.viewDialogVisible = true
+    // 拒绝审核
+    handleReject() {
+      axios
+        .delete("/api/refer/deleteById", {
+          data: {
+            id: this.auditRow.id,
+          },
+        })
+        .then((res) => {
+          if (res.data === true || res.data.code === 200) {
+            this.$message.success("已拒绝")
+            this.auditDialogVisible = false
+            this.fetchData()
+          } else {
+            this.$message.error(res.data.message || "操作失败")
+          }
+        })
+        .catch((error) => {
+          console.error("操作失败：", error)
+          this.$message.error("操作失败，请稍后重试")
+        })
     },
 
     // 编辑
@@ -367,38 +349,6 @@ export default {
       })
     },
 
-    // 删除
-    handleDelete(row) {
-      this.$confirm(`确定要删除"${row.company}"的内推信息吗？`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          axios
-            .delete("/api/refer/deleteById", {
-              data: {
-                id: row.id,
-              },
-            })
-            .then((res) => {
-              if (res.data === true || res.data.code === 200) {
-                this.$message.success("删除成功")
-                this.fetchData()
-              } else {
-                this.$message.error(res.data.message || "删除失败")
-              }
-            })
-            .catch((error) => {
-              console.error("删除失败：", error)
-              this.$message.error("删除失败，请稍后重试")
-            })
-        })
-        .catch(() => {
-          // 取消删除
-        })
-    },
-
     // 每页条数改变
     handleSizeChange(val) {
       this.pagination.pageSize = val
@@ -412,22 +362,6 @@ export default {
       this.fetchData()
     },
 
-    // 格式化日期
-    formatDate(dateStr) {
-      if (!dateStr) return '-'
-      try {
-        const date = new Date(dateStr)
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        const hours = String(date.getHours()).padStart(2, '0')
-        const minutes = String(date.getMinutes()).padStart(2, '0')
-        const seconds = String(date.getSeconds()).padStart(2, '0')
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-      } catch (error) {
-        return dateStr
-      }
-    },
   },
 }
 </script>
@@ -461,6 +395,21 @@ export default {
   font-weight: 600;
   color: #2d3748;
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-btn {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border: none;
+}
+
+.header-btn:hover {
+  opacity: 0.9;
 }
 
 /* 表格容器 */
@@ -544,57 +493,6 @@ export default {
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid #f0f0f0;
-}
-
-/* 详情内容样式 */
-.detail-content {
-  padding: 10px 0;
-}
-
-.detail-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  flex-shrink: 0;
-  width: 120px;
-  font-weight: 600;
-  color: #4a5568;
-}
-
-.detail-value {
-  flex: 1;
-  color: #2d3748;
-  word-break: break-all;
-}
-
-.code-highlight {
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: 600;
-  color: #4a6cf8;
-  background: #f0f4ff;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.url-link {
-  color: #4a6cf8;
-  text-decoration: none;
-  border-bottom: 1px solid #4a6cf8;
-  transition: all 0.3s;
-}
-
-.url-link:hover {
-  color: #8a4af8;
-  border-bottom-color: #8a4af8;
 }
 
 /* 对话框样式 */
@@ -720,15 +618,6 @@ export default {
 
   ::v-deep .el-dialog__body {
     padding: 20px 16px;
-  }
-
-  .detail-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .detail-label {
-    margin-bottom: 6px;
   }
 }
 

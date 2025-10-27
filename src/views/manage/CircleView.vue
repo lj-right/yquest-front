@@ -4,23 +4,82 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">交流圈管理</h2>
-        <el-button type="primary" icon="el-icon-plus" @click="handleAdd">
-          新增圈子
-        </el-button>
+        <div class="header-actions">
+          <el-button type="primary" icon="el-icon-plus" @click="handleAdd" class="header-btn">
+            新增圈子
+          </el-button>
+          <el-button type="primary" icon="el-icon-refresh" @click="fetchData" class="header-btn">
+            刷新
+          </el-button>
+        </div>
       </div>
 
       <!-- 数据表格 -->
-      <div class="table-container" v-loading="loading">
-        <el-tree
-          :data="circleData"
-          node-key="id"
-          :props="treeProps"
-          :render-content="renderContent"
-          accordion
-          highlight-current
-          @node-click="handleNodeClick"
+      <div class="table-container">
+        
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          v-loading="loading"
+          :header-cell-style="{ background: '#f5f7fa', color: '#606266', textAlign: 'center' }"
         >
-        </el-tree>
+          <el-table-column prop="id" label="ID" width="80" align="center">
+          </el-table-column>
+          <el-table-column prop="circleName" label="圈子名称" min-width="200" align="center">
+            <template slot-scope="scope">
+              <span style="margin-right: 8px;">
+                <i v-if="scope.row.icon" :class="`el-icon-${scope.row.icon}`" style="color: #4a6cf8;"></i>
+              </span>
+              {{ scope.row.circleName }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="level" label="级别" width="120" align="center">
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.level === 1 ? 'success' : 'info'" size="small">
+                {{ scope.row.level === 1 ? '一级分类' : '二级分类' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="parentId" label="父分类ID" width="120" align="center">
+            <template slot-scope="scope">
+              {{ scope.row.parentId === -1 ? '-' : scope.row.parentId }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="220" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-edit"
+                @click="handleEdit(scope.row)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pagination.pageNo"
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pagination.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="pagination.total"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
 
@@ -30,6 +89,7 @@
       :visible.sync="dialogVisible"
       width="500px"
       :close-on-click-modal="false"
+      :modal="false"
     >
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="圈子名称" prop="circleName">
@@ -75,11 +135,12 @@ export default {
   name: "CircleView",
   data() {
     return {
-      circleData: [],
+      tableData: [],
       loading: false,
-      treeProps: {
-        children: "children",
-        label: "circleName",
+      pagination: {
+        pageNo: 1,
+        pageSize: 10,
+        total: 0,
       },
       dialogVisible: false,
       dialogTitle: "",
@@ -98,12 +159,11 @@ export default {
           { min: 1, max: 50, message: "长度在 1 到 50 个字符", trigger: "blur" },
         ],
       },
-      currentNode: null,
     }
   },
   computed: {
     parentOptions() {
-      return this.getFirstLevelCircles(this.circleData)
+      return this.tableData.filter((item) => item.level === 1)
     },
   },
   mounted() {
@@ -116,7 +176,10 @@ export default {
         .get("/api/circle/share/circle/list")
         .then((res) => {
           if (res.data.code === 200 && res.data.date) {
-            this.circleData = res.data.date || []
+            const treeData = res.data.date || []
+            // 将树形结构转换为扁平数组
+            this.tableData = this.flattenTree(treeData)
+            this.pagination.total = this.tableData.length
           } else {
             this.$message.error(res.data.message || "获取数据失败")
           }
@@ -130,65 +193,30 @@ export default {
         })
     },
 
-    renderContent(h, { node, data }) {
-      return h(
-        "div",
-        {
-          class: "custom-tree-node",
-        },
-        [
-          h(
-            "span",
-            {
-              class: "node-label",
-            },
-            [
-              data.icon && h("i", { class: `el-icon-${data.icon}`, style: "margin-right: 8px; color: #4a6cf8;" }),
-              h("span", data.circleName),
-            ]
-          ),
-          h(
-            "span",
-            {
-              class: "node-actions",
-            },
-            [
-              h(
-                "el-button",
-                {
-                  props: {
-                    type: "primary",
-                    size: "small",
-                    icon: "el-icon-edit",
-                  },
-                  on: {
-                    click: () => this.handleEdit(data, node),
-                  },
-                },
-                "编辑"
-              ),
-              h(
-                "el-button",
-                {
-                   props: {
-                    type: "danger",
-                    size: "small",
-                    icon: "el-icon-delete",
-                  },
-                  on: {
-                    click: () => this.handleDelete(data),
-                  },
-                },
-                "删除"
-              ),
-            ]
-          ),
-        ]
-      )
+    // 将树形结构转换为扁平数组
+    flattenTree(tree, level = 1) {
+      let result = []
+      tree.forEach(item => {
+        result.push({
+          ...item,
+          level: level
+        })
+        if (item.children && item.children.length > 0) {
+          result = result.concat(this.flattenTree(item.children, level + 1))
+        }
+      })
+      return result
     },
 
-    handleNodeClick(data, node) {
-      this.currentNode = node
+    handleSizeChange(val) {
+      this.pagination.pageSize = val
+      this.pagination.pageNo = 1
+      this.fetchData()
+    },
+
+    handleCurrentChange(val) {
+      this.pagination.pageNo = val
+      this.fetchData()
     },
 
     handleAdd() {
@@ -207,17 +235,15 @@ export default {
       })
     },
 
-    handleEdit(data, node) {
+    handleEdit(row) {
       this.dialogTitle = "编辑圈子"
       this.isEdit = true
-      this.currentNode = node
-      const level = node.level === 1 ? 1 : 2
       this.form = {
-        id: data.id,
-        circleName: data.circleName,
-        icon: data.icon || "",
-        level: level,
-        parentId: data.parentId || -1,
+        id: row.id,
+        circleName: row.circleName,
+        icon: row.icon || "",
+        level: row.level,
+        parentId: row.parentId || -1,
       }
       this.dialogVisible = true
       this.$nextTick(() => {
@@ -225,13 +251,15 @@ export default {
       })
     },
 
-    handleDelete(data) {
-      if (data.children && data.children.length > 0) {
+    handleDelete(row) {
+      // 检查是否有子分类
+      const hasChildren = this.tableData.some(item => item.parentId === row.id)
+      if (hasChildren) {
         this.$message.warning("请先删除子分类")
         return
       }
       
-      this.$confirm(`确定要删除圈子"${data.circleName}"吗？`, "提示", {
+      this.$confirm(`确定要删除圈子"${row.circleName}"吗？`, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -239,7 +267,7 @@ export default {
         .then(() => {
           axios
             .post("/api/circle/share/circle/remove", {
-              id: data.id,
+              id: row.id,
             })
             .then((res) => {
               if (res.data.code === 200 || res.data.date === true) {
@@ -318,10 +346,6 @@ export default {
         this.form.parentId = this.parentOptions.length > 0 ? this.parentOptions[0].id : -1
       }
     },
-
-    getFirstLevelCircles(data) {
-      return data.filter((item) => !item.parentId || item.parentId === -1)
-    },
   },
 }
 </script>
@@ -329,16 +353,16 @@ export default {
 <style scoped>
 .circle-container {
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  width: 100%;
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 .content-wrapper {
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   padding: 24px 20px 0;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -361,59 +385,49 @@ export default {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin: 0 auto;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
   min-height: 200px;
 }
 
-.custom-tree-node {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 8px 0;
-}
-
-.node-label {
+.header-actions {
   display: flex;
   align-items: center;
-  flex: 1;
-  color: #2d3748;
-  font-weight: 500;
-  font-size: 15px;
+  gap: 12px;
 }
 
-.node-actions {
+.header-btn {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border: none;
+}
+
+.header-btn:hover {
+  opacity: 0.9;
+}
+
+.add-button {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border: none;
+}
+
+.add-button:hover {
+  opacity: 0.9;
+}
+
+.pagination-container {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-}
-
-::v-deep .el-tree {
-  border: none;
-  background: transparent;
-}
-
-::v-deep .el-tree-node__content {
-  height: auto;
-  padding: 12px 0 !important;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-::v-deep .el-tree-node__content:last-child {
-  border-bottom: none;
-}
-
-::v-deep .el-tree-node:focus > .el-tree-node__content {
-  background: #f5f7fa;
-}
-
-::v-deep .el-tree-node__content:hover {
-  background: #f5f7fa;
 }
 
 ::v-deep .el-button--primary {
@@ -432,6 +446,43 @@ export default {
 
 ::v-deep .el-button--danger:hover {
   background: #f78989;
+}
+
+.table-container::v-deep .el-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-container::v-deep .el-table th {
+  font-weight: 600;
+}
+
+.table-container::v-deep .el-table__row:hover {
+  background-color: #f5f7fa;
+}
+
+::v-deep .el-tag--success {
+  background-color: #f0f9ff;
+  border-color: #bae7ff;
+  color: #1890ff;
+}
+
+::v-deep .el-tag--info {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #8c8c8c;
+}
+
+::v-deep .el-pagination {
+  font-weight: normal;
+}
+
+::v-deep .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #4a6cf8;
+}
+
+::v-deep .el-pagination.is-background .el-pager li:hover {
+  color: #4a6cf8;
 }
 
 ::v-deep .el-dialog__header {
@@ -505,8 +556,31 @@ export default {
     -webkit-overflow-scrolling: touch;
   }
 
-  ::v-deep .el-tree {
-    min-width: 400px;
+  .table-header {
+    margin-bottom: 16px;
+  }
+
+  .add-button {
+    width: 100%;
+  }
+
+  ::v-deep .el-table {
+    min-width: 600px;
+  }
+
+  ::v-deep .el-table th,
+  ::v-deep .el-table td {
+    padding: 10px 8px;
+  }
+
+  .pagination-container {
+    justify-content: center;
+    padding: 16px 0;
+  }
+
+  ::v-deep .el-pagination {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   ::v-deep .el-dialog {
@@ -516,15 +590,6 @@ export default {
 
   ::v-deep .el-dialog__body {
     padding: 20px 16px;
-  }
-
-  .node-actions {
-    display: none;
-  }
-
-  .custom-tree-node:hover .node-actions,
-  .custom-tree-node:active .node-actions {
-    display: flex;
   }
 }
 
@@ -546,22 +611,14 @@ export default {
     font-size: 13px;
   }
 
-  .node-label {
-    font-size: 14px;
+  ::v-deep .el-table {
+    font-size: 13px;
+    min-width: 700px;
   }
 
-  .node-actions .el-button {
-    padding: 5px 10px;
-    font-size: 12px;
-  }
-
-  ::v-deep .el-tree-node__content {
-    height: auto;
-    min-height: 36px;
-  }
-
-  .custom-tree-node {
-    flex-wrap: wrap;
+  ::v-deep .el-pagination__total,
+  ::v-deep .el-pagination__jump {
+    display: none;
   }
 }
 </style>

@@ -4,9 +4,14 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">敏感词管理</h2>
-        <el-button type="primary" icon="el-icon-plus" @click="handleAdd">
-          新增敏感词
-        </el-button>
+        <div class="header-actions">
+          <el-button type="primary" icon="el-icon-plus" @click="handleAdd" class="header-btn">
+            新增敏感词
+          </el-button>
+          <el-button type="primary" icon="el-icon-refresh" @click="fetchData" class="header-btn">
+            刷新
+          </el-button>
+        </div>
       </div>
 
       <!-- 数据表格 -->
@@ -72,6 +77,7 @@
       :visible.sync="dialogVisible"
       width="500px"
       :close-on-click-modal="false"
+      :modal="false"
     >
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="敏感词" prop="words">
@@ -331,6 +337,21 @@ export default {
   font-weight: 600;
   color: #2d3748;
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-btn {
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
+  border: none;
+}
+
+.header-btn:hover {
+  opacity: 0.9;
 }
 
 /* 表格容器 */
