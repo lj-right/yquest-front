@@ -135,9 +135,18 @@
               >
                 <el-input
                   v-model="form.trialCode"
-                  placeholder="请输入试用码（如无则填无）"
+                  placeholder="请输入试用码（请先点击获取）"
                   class="form-input"
-                ></el-input>
+                >
+                  <el-button
+                    slot="append"
+                    type="primary"
+                    @click="onGetTrialCode"
+                    :loading="gettingTrialCode"
+                  >
+                    获取试用码
+                  </el-button>
+                </el-input>
               </el-form-item>
             </div>
 
@@ -269,6 +278,7 @@ export default {
         createdBy: "",
         createdTime: "",
       },
+      gettingTrialCode: false,
       // 表单验证规则
       formRules: {
         company: [
@@ -319,53 +329,101 @@ export default {
     }
   },
   methods: {
-    onSubmit() {
-      this.$refs.form.validate((isValid) => {
-        if (isValid) {
-          
-          const now = new Date()
-          this.form.createdTime = now
-            .toLocaleString("en-US", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })
-            .replace(/[^\\d]/g, "")
+    // 获取试用码 - 每日仅限一次
+    async onGetTrialCode() {
+      if (!this.$store.state || !this.$store.state.email) {
+        this.$message.warning('请先登录后再获取试用码')
+        this.$router.push('/login')
+        return
+      }
 
-          axios.post("/api/refer/add", this.form).then(
-            (res) => {
-              console.log(res)
-              if (res.data.code === 200 && res.data.date) {
-                this.$message({
-                  message: "提交成功，等待审核",
-                  type: "success",
-                })
-                this.resetForm()
-              } else {
-                this.$message({
-                  message: "提交失败，请重试",
-                  type: "error",
-                })
-              }
-            },
-            (err) => {
-              console.log(err)
-              this.$message({
-                message: "网络异常，请稍后重试",
-                type: "error",
-              })
-            }
-          )
+      const email = this.$store.state.email
+      const todayKey = `trial_code_date_${email}`
+      const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+      const lastDate = localStorage.getItem(todayKey)
+      if (lastDate === today) {
+        this.$message.info('您今天已获取过试用码，请明天再来')
+        return
+      }
+
+      try {
+        this.gettingTrialCode = true
+        const res = await axios.post('/api/trialCode/getTrialCode')
+        if (res.data && (res.data.success === true || res.data.code === 200)) {
+          const code = res.data.date || res.data.data || ''
+          if (code) {
+            this.form.trialCode = code
+            localStorage.setItem(todayKey, today)
+            this.$message.success('获取成功，已自动填入试用码')
+          } else {
+            this.$message.error('未获取到试用码，请稍后重试')
+          }
         } else {
+          this.$message.error(res.data.message || '获取试用码失败')
+        }
+      } catch (e) {
+        console.error('get trial code error', e)
+        this.$message.error('网络异常，获取试用码失败')
+      } finally {
+        this.gettingTrialCode = false
+      }
+    },
+    async onSubmit() {
+      this.$refs.form.validate((isValid) => {
+        if (!isValid) {
           this.$message({
             message: "请完善必填项并检查格式",
             type: "warning",
           })
           return false
         }
+
+        // 先消费试用码，再提交内推
+        const trialCode = this.form.trialCode
+        const payload = { ...this.form }
+        delete payload.trialCode
+
+        const now = new Date()
+        payload.createdTime = now
+          .toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          .replace(/[^\\d]/g, "")
+
+        axios
+          .post("/api/trialCode/consume", null, { params: { trialCode } })
+          .then((consumeRes) => {
+            if (
+              consumeRes &&
+              consumeRes.data &&
+              (consumeRes.data === true ||
+                consumeRes.data.date === true ||
+                consumeRes.data.code === 200)
+            ) {
+              return axios.post("/api/refer/add", payload)
+            }
+            const msg =
+              (consumeRes && consumeRes.data && consumeRes.data.message) ||
+              "试用码无效或已被使用"
+            return Promise.reject(new Error(msg))
+          })
+          .then((res) => {
+            if (res.data.code === 200 && res.data.date) {
+              this.$message({ message: "提交成功，等待审核", type: "success" })
+              this.resetForm()
+            } else {
+              this.$message({ message: res.data.message || "提交失败，请重试", type: "error" })
+            }
+          })
+          .catch((err) => {
+            console.error(err)
+            this.$message({ message: err.message || "操作失败，请稍后重试", type: "error" })
+          })
       })
     },
     resetForm() {
