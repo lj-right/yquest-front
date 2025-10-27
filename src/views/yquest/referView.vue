@@ -126,7 +126,22 @@
               </el-form-item>
             </div>
 
-            <!-- 第四行：1列布局（链接信息） -->
+            <!-- 第四行：1列布局（试用码信息） -->
+            <div class="form-row">
+              <el-form-item
+                label="试用码"
+                prop="trialCode"
+                class="form-col form-col-12"
+              >
+                <el-input
+                  v-model="form.trialCode"
+                  placeholder="请输入试用码（如无则填无）"
+                  class="form-input"
+                ></el-input>
+              </el-form-item>
+            </div>
+
+            <!-- 第五行：1列布局（链接信息） -->
             <div class="form-row">
               <el-form-item
                 label="内推直达链接"
@@ -143,7 +158,7 @@
               </el-form-item>
             </div>
 
-            <!-- 第五行：1列布局（选填信息） -->
+            <!-- 第六行：1列布局（选填信息） -->
             <div class="form-row">
               <el-form-item
                 label="补充描述"
@@ -250,6 +265,7 @@ export default {
         sort: 1,
         description: "",
         url: "",
+        trialCode: "",
         createdBy: "",
         createdTime: "",
       },
@@ -287,6 +303,15 @@ export default {
           {
             required: true,
             message: "请输入内推直达链接或使用说明",
+            trigger: "blur",
+          },
+        ],
+        trialCode: [
+          { required: true, message: "请输入试用码", trigger: "blur" },
+          {
+            min: 3,
+            max: 50,
+            message: "试用码长度需在3-50个字符之间",
             trigger: "blur",
           },
         ],

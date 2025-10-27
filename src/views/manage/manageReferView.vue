@@ -435,16 +435,16 @@ export default {
 <style scoped>
 .refer-container {
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  width: 100%;
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 .content-wrapper {
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   padding: 24px 20px 0;
+  box-sizing: border-box;
 }
 
 /* 页面头部 */
@@ -469,7 +469,10 @@ export default {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin: 0 auto;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
 }
 
 /* 内推码样式 */

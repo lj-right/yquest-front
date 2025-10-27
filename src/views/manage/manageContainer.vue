@@ -111,9 +111,10 @@ export default {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   min-height: calc(100vh - 60px);
   padding: 30px 0;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
   position: relative;
-  z-index: 999;
+  z-index: 1;
+  overflow-y: auto;
 }
 
 .sidebar-overlay {
@@ -181,6 +182,9 @@ export default {
   padding: 0;
   min-height: calc(100vh - 60px);
   overflow-x: hidden;
+  transition: margin-left 0.3s ease;
+  position: relative;
+  z-index: 0;
 }
 
 .el-main {
@@ -318,7 +322,29 @@ export default {
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 200px;
+  }
+  
+  .navbar {
+    padding: 15px 15px;
+  }
+
+  .brand-logo {
+    font-size: 20px;
+  }
+
+  .brand-logo span {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 1024px) {
+  .sidebar {
+    width: 180px;
+  }
+  
   .navbar {
     padding: 15px 15px;
   }
@@ -339,15 +365,17 @@ export default {
 
   .sidebar {
     position: fixed;
-    left: -220px;
     top: 60px;
+    left: 0;
     height: calc(100vh - 60px);
     z-index: 1000;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
   }
 
   .sidebar-visible {
-    left: 0 !important;
+    transform: translateX(0) !important;
   }
 
   .sidebar-overlay {
@@ -359,6 +387,12 @@ export default {
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 998;
+  }
+
+  /* 主内容区域始终占满全宽 */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
   }
 
   .nav-actions {
