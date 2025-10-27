@@ -9,41 +9,16 @@
       </a>
 
       <div class="nav-links">
-        <router-link
-          to="/yquest"
-          class="nav-link"
-          :class="$route.path === '/yquest' ? 'nav-link--active' : ''"
-          >首页</router-link
-        >
-        <router-link
-          to="/showRefer"
-          class="nav-link"
-          :class="$route.path === '/showRefer' ? 'nav-link--active' : ''"
-          >内推机会</router-link
-        >
-        <router-link
-          to="/circle"
-          class="nav-link"
-          :class="$route.path === '/circle' ? 'nav-link--active' : ''"
-          >求职交流</router-link
-        >
-        <router-link
-          to="/refer"
-          class="nav-link"
-          :class="$route.path === '/refer' ? 'nav-link--active' : ''"
-          >我要内推</router-link
-        >
-        <router-link
-          to="/aboutMe"
-          class="nav-link"
-          :class="$route.path === '/aboutMe' ? 'nav-link--active' : ''"
-          >关于作者</router-link
-        >
+        <router-link to="/yquest" class="nav-link">首页</router-link>
+        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
+        <router-link to="/circle" class="nav-link">求职交流</router-link>
+        <router-link to="/refer" class="nav-link">我要内推</router-link>
+        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
       </div>
 
       <div class="nav-actions">
         <div>
-          <router-link to="/login" class="nav-btn btn-login">{{
+          <router-link to="/login" class="nav-btn btn-login" >{{
             this.$store.state.name
           }}</router-link>
         </div>
@@ -391,7 +366,7 @@ export default {
 /* 导航栏样式 */
 .navbar {
   background: white;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 15px 5%;
   display: flex;
   justify-content: space-between;
@@ -399,11 +374,6 @@ export default {
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: box-shadow 0.3s ease;
-}
-
-.navbar:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .navbar-brand {
@@ -417,11 +387,6 @@ export default {
   font-size: 24px;
   font-weight: 700;
   color: #4a6cf8;
-  transition: color 0.3s ease;
-}
-
-.brand-logo:hover {
-  color: #3a5be8;
 }
 
 .brand-logo span {
@@ -430,16 +395,15 @@ export default {
 
 .nav-links {
   display: flex;
-  gap: 35px;
+  gap: 30px;
 }
 
 .nav-link {
   color: #555;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: color 0.3s;
   position: relative;
-  padding: 8px 0;
 }
 
 .nav-link:hover {
@@ -449,25 +413,15 @@ export default {
 .nav-link::after {
   content: "";
   position: absolute;
-  bottom: 0;
+  bottom: -5px;
   left: 0;
   width: 0;
   height: 2px;
   background: #4a6cf8;
-  transition: width 0.3s ease;
+  transition: width 0.3s;
 }
 
 .nav-link:hover::after {
-  width: 100%;
-}
-
-/* 导航栏活跃状态样式 */
-.nav-link--active {
-  color: #4a6cf8;
-  font-weight: 600;
-}
-
-.nav-link--active::after {
   width: 100%;
 }
 
@@ -481,8 +435,7 @@ export default {
   border-radius: 6px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.3s ease;
-  display: inline-block;
+  transition: all 0.3s;
 }
 
 .btn-login {
@@ -494,7 +447,7 @@ export default {
 .btn-login:hover {
   background: #e4e7ff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.18);
+  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
 }
 
 /* 主体内容：控制整体居中 */

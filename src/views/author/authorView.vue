@@ -209,17 +209,6 @@
   box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
 }
 
-.btn-register {
-  background: linear-gradient(to right, #4a6cf8, #8a4af8);
-  color: white;
-  border: none;
-}
-
-.btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3);
-}
-
 /* 主体内容 */
 .main-content {
   flex: 1;

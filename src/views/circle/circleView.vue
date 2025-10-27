@@ -15,9 +15,11 @@
       </div>
 
       <div class="nav-actions">
-        <router-link to="/login" class="nav-btn btn-login">
-          {{ this.$store.state.name || '登录' }}
-        </router-link>
+        <div>
+          <router-link to="/login" class="nav-btn btn-login" >{{
+            this.$store.state.name
+          }}</router-link>
+        </div>
       </div>
     </nav>
 
@@ -575,7 +577,7 @@ export default {
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .navbar-brand {
