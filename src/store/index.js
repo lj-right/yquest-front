@@ -16,12 +16,18 @@ export default new Vuex.Store({
     setName(state, newName) {
       state.name = '欢迎：'+newName
     },
+    setEmail(state, email) {
+      state.email = email
+    },
     setLoginStatus(state, newStatus) {
       state.hasLogin = newStatus
     }
   },
   actions: {
     setNickNameByLogin(context,email) {
+      // 先设置邮箱
+      context.commit('setEmail', email)
+      
       axios({
         url: '/api/authUser/queryNickNameByEmail',
         method: 'get',

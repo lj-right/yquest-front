@@ -18,6 +18,13 @@
 
       <div class="nav-actions">
         <div>
+          <router-link 
+            v-if="isAdminUser" 
+            to="/manage" 
+            class="nav-btn btn-admin"
+          >
+            后台管理
+          </router-link>
           <router-link to="/login" class="nav-btn btn-login" >{{
             this.$store.state.name
           }}</router-link>
@@ -220,6 +227,12 @@ export default {
       },
     }
   },
+  computed: {
+    // 判断是否为管理员用户
+    isAdminUser() {
+      return this.$store.state.email === 'suifeng.king@qq.com'
+    }
+  },
   methods: {
     switchToLogin() {
       this.isLogin = true
@@ -334,6 +347,14 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
 }
+
+.btn-admin {
+  background: transparent;
+  color: #4a6cf8;
+  border: none;
+  margin-left: -6px;
+}
+
 
 /* 主体内容 */
 .home-content {
