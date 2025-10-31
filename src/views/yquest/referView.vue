@@ -25,9 +25,7 @@
           >
             后台管理
           </router-link>
-          <router-link to="/login" class="nav-btn btn-login" >{{
-            this.$store.state.name
-          }}</router-link>
+          <UserMenu />
         </div>
       </div>
     </nav>
@@ -261,6 +259,7 @@
 
 <script>
 import axios from "axios"
+import UserMenu from "../../components/UserMenu.vue"
 
 export default {
   data() {
@@ -328,6 +327,7 @@ export default {
       },
     }
   },
+  components: { UserMenu },
   methods: {
     // 获取试用码 - 每日仅限一次
     async onGetTrialCode() {

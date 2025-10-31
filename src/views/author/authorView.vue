@@ -25,9 +25,7 @@
           >
             后台管理
           </router-link>
-          <router-link to="/login" class="nav-btn btn-login" >{{
-            this.$store.state.name
-          }}</router-link>
+          <UserMenu />
         </div>
       </div>
     </nav>
@@ -110,8 +108,10 @@
 </template>
 
 <script>
+import UserMenu from "../../components/UserMenu.vue"
 export default {
   name: 'AuthorView',
+  components: { UserMenu },
   computed: {
     // 判断是否为管理员用户
     isAdminUser() {

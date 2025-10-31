@@ -25,9 +25,7 @@
           >
             后台管理
           </router-link>
-          <router-link to="/login" class="nav-btn btn-login">{{
-            this.$store.state.name
-          }}</router-link>
+          <UserMenu />
         </div>
       </div>
     </nav>
@@ -272,8 +270,10 @@
 
 <script>
 import axios from "axios"
+import UserMenu from "../../components/UserMenu.vue"
 export default {
   name: "LoginPage",
+  components: { UserMenu },
   data() {
     return {
       isLogin: true,
@@ -354,7 +354,7 @@ export default {
             if (res.data.code === 200 && res.data.date) {
               localStorage.setItem("token", res.data.date.tokenValue)
               this.$store.commit("setLoginStatus", true)
-              this.nickName = res.data.date.nickName
+              this.$store.commit("setEmail", this.login.email)
               this.$store.dispatch("setNickNameByLogin", this.login.email)
               this.$message.success({ message: "登录成功", duration: 750 })
               if (this.$route.query.redirect) {

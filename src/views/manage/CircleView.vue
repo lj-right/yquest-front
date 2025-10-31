@@ -40,11 +40,6 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="parentId" label="父分类ID" width="120" align="center">
-            <template slot-scope="scope">
-              {{ scope.row.parentId === -1 ? '-' : scope.row.parentId }}
-            </template>
-          </el-table-column>
           <el-table-column label="操作" width="220" align="center" fixed="right">
             <template slot-scope="scope">
               <el-button

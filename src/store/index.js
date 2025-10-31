@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -14,7 +13,7 @@ export default new Vuex.Store({
   mutations: {
     // 修改状态的方法
     setName(state, newName) {
-      state.name = '欢迎：'+newName
+      state.name = newName
     },
     setEmail(state, email) {
       state.email = email
@@ -22,24 +21,6 @@ export default new Vuex.Store({
     setLoginStatus(state, newStatus) {
       state.hasLogin = newStatus
     }
-  },
-  actions: {
-    setNickNameByLogin(context,email) {
-      // 先设置邮箱
-      context.commit('setEmail', email)
-      
-      axios({
-        url: '/api/authUser/queryNickNameByEmail',
-        method: 'get',
-        params: {
-          email: email
-        }
-      }).then(res => {
-        if (res.data.code === 200 && res.data.date) {
-              context.commit('setName', res.data.date); 
-            }
-          })
-        }
   },
   modules: {
     // 模块化Vuex
