@@ -30,52 +30,46 @@
 
     <!-- 主体内容区域 -->
     <div class="main-content">
-      <!-- 左侧圈子列表 -->
+      <!-- 左侧一级分类 -->
       <div class="sidebar">
         <div class="circle-list-header">
-          <h3>交流圈</h3>
+          <h3>圈子分类</h3>
         </div>
         <div class="circle-list" v-loading="circleLoading">
           <div 
             v-for="circle in circleList" 
             :key="circle.id"
-            class="circle-category"
+            :class="['circle-item-primary', { active: currentPrimaryCircle?.id === circle.id }]"
+            @click="selectPrimaryCircle(circle)"
           >
-            <div class="category-title">{{ circle.circleName }}</div>
-            <div 
-              v-for="subCircle in circle.children" 
-              :key="subCircle.id"
-              :class="['circle-item', { active: currentCircleId === subCircle.id }]"
-              @click="selectCircle(subCircle)"
-            >
-              <span class="circle-name">{{ subCircle.circleName }}</span>
-            </div>
+            <span class="circle-name">{{ circle.circleName }}</span>
+            <span class="circle-count" v-if="circle.children">{{ circle.children.length }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 右侧动态列表 -->
+      <!-- 右侧内容区 -->
       <div class="content-area">
-        <!-- 顶部标签栏 -->
-        <div class="tab-bar">
-          <div 
-            :class="['tab', { active: currentTab === 'recommend' }]"
-            @click="switchTab('recommend')"
-          >
-            推荐
+        <!-- 顶部操作栏：二级分类标签 + 发布按钮 -->
+        <div class="content-header">
+          <div class="sub-circle-tabs" v-if="currentPrimaryCircle && currentPrimaryCircle.children">
+            <div 
+              v-for="subCircle in currentPrimaryCircle.children" 
+              :key="subCircle.id"
+              :class="['sub-tab', { active: currentCircleId === subCircle.id }]"
+              @click="selectSubCircle(subCircle)"
+            >
+              {{ subCircle.circleName }}
+            </div>
           </div>
-          <div 
-            :class="['tab', { active: currentTab === 'frontend' }]"
-            @click="switchTab('frontend')"
+          <el-button 
+            type="primary" 
+            icon="el-icon-edit" 
+            class="publish-btn"
+            @click="openPublishDialog"
           >
-            前端
-          </div>
-          <div 
-            :class="['tab', { active: currentTab === 'backend' }]"
-            @click="switchTab('backend')"
-          >
-            后端
-          </div>
+            发布动态
+          </el-button>
         </div>
 
         <!-- 动态列表 -->
@@ -134,7 +128,11 @@
           <!-- 空状态 -->
           <div v-if="!momentLoading && momentList.length === 0" class="empty-state">
             <i class="el-icon-chat-line-round"></i>
-            <p>暂无动态</p>
+            <p class="empty-title">该圈子还没有任何动态</p>
+            <p class="empty-subtitle">快来发布第一条吧！成为话题引领者</p>
+            <el-button type="primary" @click="openPublishDialog" class="empty-action-btn">
+              发布动态
+            </el-button>
           </div>
 
           <!-- 暂时隐藏分页，接口返回全部数据 -->
@@ -151,6 +149,64 @@
         </div>
       </div>
     </div>
+
+    <!-- 发布动态对话框 -->
+    <el-dialog
+      title="发布动态"
+      :visible.sync="publishDialogVisible"
+      width="620px"
+      :close-on-click-modal="false"
+      custom-class="publish-dialog"
+    >
+      <div class="publish-form-wrapper">
+        <el-form :model="publishForm" label-width="0">
+          <el-form-item class="content-form-item">
+            <el-input
+              type="textarea"
+              v-model="publishForm.content"
+              placeholder="分享你的想法...（支持文字、图片）&#10;&#10;💡 提示：使用文明用语，共建和谐社区"
+              :rows="8"
+              maxlength="1000"
+              show-word-limit
+              class="publish-textarea"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="选择圈子" class="circle-select-item">
+            <el-select 
+              v-model="publishForm.circleId" 
+              placeholder="请选择适合的交流圈分类" 
+              style="width: 100%"
+              class="circle-select"
+            >
+              <el-option-group
+                v-for="circle in circleList"
+                :key="circle.id"
+                :label="circle.circleName"
+              >
+                <el-option
+                  v-for="subCircle in circle.children"
+                  :key="subCircle.id"
+                  :label="subCircle.circleName"
+                  :value="subCircle.id"
+                ></el-option>
+              </el-option-group>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div slot="footer" class="dialog-footer publish-footer">
+        <el-button @click="publishDialogVisible = false" class="cancel-btn">取 消</el-button>
+        <el-button 
+          type="primary" 
+          :loading="publishing" 
+          @click="submitPublish"
+          class="publish-submit-btn"
+          icon="el-icon-s-promotion"
+        >
+          {{ publishing ? '发布中...' : '发 布' }}
+        </el-button>
+      </div>
+    </el-dialog>
 
     <!-- 动态详情对话框 -->
     <el-dialog
@@ -232,9 +288,9 @@
               </div>
 
               <!-- 子回复 -->
-              <div class="reply-list" v-if="comment.children && comment.children.length">
+              <div class="reply-list" v-if="comment.children && comment.children.length > 0">
                 <div 
-                  v-for="reply in comment.children" 
+                  v-for="reply in getDisplayReplies(comment)" 
                   :key="reply.id"
                   class="reply-item"
                 >
@@ -251,7 +307,10 @@
                       <span class="comment-time">{{ formatTime(reply.createdTime) }}</span>
                     </div>
                   </div>
-                  <div class="comment-content">{{ reply.content }}</div>
+                  <div class="comment-content">
+                    <span v-if="reply.toId && reply.toId !== reply.fromId" class="reply-to-user">@{{ reply.toUserName || '用户' }} </span>
+                    {{ reply.content }}
+                  </div>
                   <div class="comment-images" v-if="getValidImages(reply.picUrlList).length">
                     <img 
                       v-for="(pic, index) in getValidImages(reply.picUrlList)" 
@@ -261,6 +320,20 @@
                       class="comment-image"
                     />
                   </div>
+                  <div class="comment-actions">
+                    <span class="reply-btn" @click.stop="replyToComment(reply)">回复</span>
+                  </div>
+                </div>
+                <!-- 展开/折叠按钮 -->
+                <div 
+                  v-if="comment.children.length > 3" 
+                  class="reply-toggle"
+                  @click="toggleReplies(comment.id)"
+                >
+                  <span class="toggle-text">
+                    {{ isRepliesExpanded(comment.id) ? '收起' : `展开更多回复 (${comment.children.length - 3}条)` }}
+                  </span>
+                  <i :class="['el-icon', isRepliesExpanded(comment.id) ? 'el-icon-arrow-up' : 'el-icon-arrow-down']"></i>
                 </div>
               </div>
             </div>
@@ -268,31 +341,45 @@
 
           <!-- 发表评论 -->
           <div class="comment-input-section">
+            <div class="comment-tips">
+              <i class="el-icon-info"></i>
+              <span>文明交流，理性讨论 · 遵守社区准则</span>
+            </div>
             <el-input
               type="textarea"
               v-model="commentForm.content"
-              :placeholder="commentForm.replyType === 1 ? '发表你的评论...' : `回复 @${replyTarget?.userName}...`"
-              :rows="3"
+              :placeholder="commentForm.replyType === 1 ? '写下你的评论...（文明交流，理性讨论）' : `回复 @${replyTarget?.userName}：表达你的看法...`"
+              :rows="4"
               maxlength="500"
               show-word-limit
+              class="comment-textarea"
             >
             </el-input>
             <div class="comment-actions-bar">
-              <el-button 
-                v-if="commentForm.replyType === 2" 
-                size="small" 
-                @click="cancelReply"
-              >
-                取消回复
-              </el-button>
-              <el-button 
-                type="primary" 
-                size="small" 
-                @click="submitComment"
-                :loading="commentSubmitting"
-              >
-                发表
-              </el-button>
+              <div class="comment-notice">
+                <i class="el-icon-warning-outline"></i>
+                <span>提示：评论内容将经过敏感词检测</span>
+              </div>
+              <div class="comment-btns">
+                <el-button 
+                  v-if="commentForm.replyType === 2" 
+                  size="small" 
+                  @click="cancelReply"
+                  class="cancel-reply-btn"
+                >
+                  取消回复
+                </el-button>
+                <el-button 
+                  type="primary" 
+                  size="small" 
+                  @click="submitComment"
+                  :loading="commentSubmitting"
+                  class="submit-comment-btn"
+                  icon="el-icon-s-promotion"
+                >
+                  {{ commentSubmitting ? '发表中...' : '发表' }}
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -312,10 +399,9 @@ export default {
     return {
       // 圈子相关
       circleList: [],
-      currentCircleId: 0,
+      currentPrimaryCircle: null, // 当前选中的一级分类
+      currentCircleId: 0, // 当前选中的二级分类ID
       circleLoading: false,
-      // 标签相关
-      currentTab: 'recommend',
       // 动态相关
       momentList: [],
       momentLoading: false,
@@ -323,6 +409,14 @@ export default {
         pageNo: 1,
         pageSize: 10,
         total: 0
+      },
+      // 发布动态
+      publishDialogVisible: false,
+      publishing: false,
+      publishForm: {
+        circleId: 0,
+        content: '',
+        picUrlList: []
       },
       // 详情对话框
       detailDialogVisible: false,
@@ -338,7 +432,9 @@ export default {
         picUrlList: []
       },
       replyTarget: null,
-      commentSubmitting: false
+      commentSubmitting: false,
+      // 回复折叠控制
+      expandedReplies: {} // { commentId: true/false }
     }
   },
   computed: {
@@ -347,8 +443,8 @@ export default {
       return this.$store.state.email === 'suifeng.king@qq.com'
     }
   },
-  mounted() {
-    this.fetchCircleList()
+  async mounted() {
+    await this.fetchCircleList()
     this.fetchMoments()
   },
   methods: {
@@ -357,68 +453,127 @@ export default {
       this.circleLoading = true
       try {
         const res = await axios.get('/api/circle/share/circle/list')
-        if (res.data.success) {
-          this.circleList = res.data.date || []
-          // 默认选择第一个子圈子
-          if (this.circleList.length > 0 && this.circleList[0].children && this.circleList[0].children.length > 0) {
-            this.currentCircleId = this.circleList[0].children[0].id
+        if (res.data.success || res.data.code === 200) {
+          this.circleList = res.data.date || res.data.data || []
+          // 默认选择第一个一级分类及其第一个子分类
+          if (this.circleList.length > 0) {
+            this.currentPrimaryCircle = this.circleList[0]
+            if (this.currentPrimaryCircle.children && this.currentPrimaryCircle.children.length > 0) {
+              this.currentCircleId = this.currentPrimaryCircle.children[0].id
+            }
           }
+        } else {
+          this.$message.error('获取圈子列表失败')
         }
       } catch (error) {
-        console.error('获取圈子列表失败：', error)
         this.$message.error('获取圈子列表失败')
       } finally {
         this.circleLoading = false
       }
     },
 
-    // 选择圈子
-    selectCircle(circle) {
-      this.currentCircleId = circle.id
+    // 选择一级分类
+    selectPrimaryCircle(circle) {
+      this.currentPrimaryCircle = circle
+      // 自动选择该分类下的第一个子分类
+      if (circle.children && circle.children.length > 0) {
+        this.currentCircleId = circle.children[0].id
+      } else {
+        this.currentCircleId = 0
+      }
       this.pagination.pageNo = 1
       this.fetchMoments()
     },
 
-    // 切换标签
-    switchTab(tab) {
-      this.currentTab = tab
+    // 选择二级分类
+    selectSubCircle(subCircle) {
+      this.currentCircleId = subCircle.id
       this.pagination.pageNo = 1
       this.fetchMoments()
     },
 
     // 获取动态列表
     async fetchMoments() {
-      // 如果是前端或后端标签，直接显示空数据
-      if (this.currentTab === 'frontend' || this.currentTab === 'backend') {
+      // 使用二级分类ID来获取动态列表
+      if (!this.currentCircleId) {
         this.momentList = []
-        this.pagination.total = 0
         return
       }
 
-      // 推荐标签：从接口获取数据
       this.momentLoading = true
       try {
-        const res = await axios.post('/api/circle/share/comment/list', {
-          id: this.currentCircleId || 1
+        const res = await axios.post('/api/circle/share/moment/getMoments', {
+          circleId: this.currentCircleId,
+          pageInfo: {
+            pageNo: this.pagination.pageNo,
+            pageSize: this.pagination.pageSize
+          }
         })
-        if (res.data.success) {
-          // 获取根评论作为动态列表
-          const comments = res.data.date || []
-          // 只显示根评论（rootNode: true）
-          this.momentList = comments.filter(item => item.rootNode === true).map(item => ({
-            ...item,
-            // 添加回复数统计
-            replyCount: item.children ? item.children.length : 0,
-            // 映射字段以保持兼容
-            userAvatar: item.avatar
-          }))
-          this.pagination.total = this.momentList.length
+        
+        if (res.data.success || res.data.code === 200) {
+          const result = res.data.date || res.data.data || {}
+          this.momentList = result.result || []
+          this.pagination.total = result.total || 0
+        } else {
+          this.$message.error(res.data.message || '获取动态列表失败')
         }
       } catch (error) {
-        console.error('获取动态列表失败：', error)
+        console.error('获取动态列表失败:', error)
         this.$message.error('获取动态列表失败')
       } finally {
         this.momentLoading = false
+      }
+    },
+
+    // 打开发布对话框
+    openPublishDialog() {
+      if (!this.$store.state.hasLogin) {
+        this.$message.warning('请先登录后再发布动态')
+        this.$router.push('/login')
+        return
+      }
+      this.publishForm.circleId = this.currentCircleId || 0
+      this.publishDialogVisible = true
+    },
+
+    // 提交发布
+    async submitPublish() {
+      if (!this.publishForm.content.trim()) {
+        this.$message.warning('请输入动态内容')
+        return
+      }
+      if (!this.publishForm.circleId) {
+        this.$message.warning('请选择圈子')
+        return
+      }
+
+      this.publishing = true
+      try {
+        // 根据接口文档，发布动态使用 /circle/share/moment/save
+        const res = await axios.post('/api/circle/share/moment/save', {
+          circleId: this.publishForm.circleId,
+          content: this.publishForm.content,
+          picUrlList: this.publishForm.picUrlList.length > 0 ? this.publishForm.picUrlList : []
+        })
+        
+        if (res.data.success || res.data.date === true) {
+          this.$message.success({
+            message: '动态发布成功！已分享到圈子',
+            duration: 1500
+          })
+          this.publishForm.content = ''
+          this.publishForm.picUrlList = []
+          this.publishDialogVisible = false
+          // 刷新动态列表
+          await this.fetchMoments()
+        } else {
+          this.$message.error(res.data.message || '发布失败，请稍后重试')
+        }
+      } catch (error) {
+        console.error('发布失败:', error)
+        this.$message.error('发布失败，请稍后重试')
+      } finally {
+        this.publishing = false
       }
     },
 
@@ -432,29 +587,30 @@ export default {
     async viewMomentDetail(moment) {
       this.currentMoment = moment
       this.detailDialogVisible = true
-      this.commentForm.momentId = moment.momentId || moment.id
+      this.commentForm.momentId = moment.id
       this.commentForm.targetId = moment.id
       this.commentForm.replyType = 1
-      // 如果已有 children 数据，直接使用，否则从接口获取
-      if (moment.children && moment.children.length > 0) {
-        this.comments = moment.children
-      } else {
-        await this.fetchComments(moment.id)
-      }
+      this.replyTarget = null
+      this.expandedReplies = {} // 重置展开状态
+      // 使用动态ID查询评论列表
+      await this.fetchComments(moment.id)
     },
 
-    // 获取评论列表
+    // 获取评论列表（使用动态ID）
     async fetchComments(momentId) {
       this.commentLoading = true
       try {
         const res = await axios.post('/api/circle/share/comment/list', {
           id: momentId
         })
-        if (res.data.success) {
-          this.comments = res.data.date || []
+        if (res.data.success || res.data.code === 200) {
+          this.comments = res.data.date || res.data.data || []
+        } else {
+          this.$message.error(res.data.message || '获取评论失败')
         }
       } catch (error) {
-        console.error('获取评论失败：', error)
+        console.error('获取评论失败:', error)
+        this.$message.error('获取评论失败')
       } finally {
         this.commentLoading = false
       }
@@ -474,6 +630,28 @@ export default {
       this.replyTarget = null
     },
 
+    // 切换回复展开/折叠
+    toggleReplies(commentId) {
+      this.$set(this.expandedReplies, commentId, !this.expandedReplies[commentId])
+    },
+
+    // 判断回复是否展开
+    isRepliesExpanded(commentId) {
+      return this.expandedReplies[commentId] === true
+    },
+
+    // 获取显示的回复列表（如果折叠则只显示前3条）
+    getDisplayReplies(comment) {
+      if (!comment.children || comment.children.length === 0) {
+        return []
+      }
+      const isExpanded = this.isRepliesExpanded(comment.id)
+      if (isExpanded || comment.children.length <= 3) {
+        return comment.children
+      }
+      return comment.children.slice(0, 3)
+    },
+
     // 提交评论
     async submitComment() {
       if (!this.commentForm.content.trim()) {
@@ -483,32 +661,34 @@ export default {
 
       this.commentSubmitting = true
       try {
+        // 根据接口文档：
+        // replyType: 1 表示评论动态，2 表示回复评论
+        // momentId: 动态的ID
+        // targetId: 评论时为动态ID，回复时为被回复的评论ID
         const res = await axios.post('/api/circle/share/comment/save', {
-          momentId: this.currentMoment.momentId || 1,
+          momentId: this.currentMoment.id,
           replyType: this.commentForm.replyType,
           targetId: this.commentForm.targetId,
           content: this.commentForm.content,
-          picUrlList: this.commentForm.picUrlList
+          picUrlList: this.commentForm.picUrlList.length > 0 ? this.commentForm.picUrlList : []
         })
         
         if (res.data.success || res.data.date === true) {
-          this.$message.success('发表成功')
+          this.$message.success({
+            message: this.commentForm.replyType === 1 ? '评论成功发表' : '回复成功发表',
+            duration: 1200
+          })
           this.commentForm.content = ''
           this.cancelReply()
-          // 重新获取动态列表以更新数据
-          await this.fetchMoments()
           // 重新获取评论列表
-          const updatedMoment = this.momentList.find(m => m.id === this.currentMoment.id)
-          if (updatedMoment) {
-            this.currentMoment = updatedMoment
-            this.comments = updatedMoment.children || []
-          }
+          await this.fetchComments(this.currentMoment.id)
+          // 重新获取动态列表以更新回复数
+          await this.fetchMoments()
         } else {
-          this.$message.error(res.data.message || '发表失败')
+          this.$message.error(res.data.message || '发表失败，请稍后重试')
         }
       } catch (error) {
-        console.error('发表评论失败：', error)
-        this.$message.error('发表失败，请稍后重试')
+        this.$message.error('网络异常，发表失败')
       } finally {
         this.commentSubmitting = false
       }
@@ -684,67 +864,66 @@ export default {
   padding: 20px;
 }
 
-/* 左侧圈子列表 */
+/* 左侧一级分类列表 */
 .sidebar {
-  width: 240px;
+  width: 220px;
   flex-shrink: 0;
 }
 
 .circle-list-header {
   background: white;
-  padding: 15px;
-  border-radius: 8px 8px 0 0;
+  padding: 16px;
+  border-radius: 12px 12px 0 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .circle-list-header h3 {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
   margin: 0;
 }
 
 .circle-list {
   background: white;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 12px 12px;
   overflow: hidden;
+  padding: 8px 0;
 }
 
-.circle-category {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.circle-category:last-child {
-  border-bottom: none;
-}
-
-.category-title {
-  padding: 12px 15px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #999;
-  background: #fafafa;
-}
-
-.circle-item {
-  padding: 12px 15px 12px 30px;
+.circle-item-primary {
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.3s;
-  border-left: 3px solid transparent;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 8px;
+  border-radius: 8px;
+  position: relative;
 }
 
-.circle-item:hover {
+.circle-item-primary:hover {
   background: #f5f7fa;
 }
 
-.circle-item.active {
-  background: #f0f4ff;
-  border-left-color: #4a6cf8;
+.circle-item-primary.active {
+  background: linear-gradient(90deg, #f0f4ff 0%, #e8ecff 100%);
   color: #4a6cf8;
+  font-weight: 500;
 }
 
 .circle-name {
   font-size: 14px;
+  flex: 1;
+}
+
+.circle-count {
+  font-size: 12px;
+  color: #8590a6;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 /* 右侧内容区域 */
@@ -753,54 +932,113 @@ export default {
   min-width: 0;
 }
 
-/* 顶部标签栏样式 */
-.tab-bar {
+/* 顶部操作栏：二级标签 + 发布按钮 */
+.content-header {
+  background: white;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 16px;
   display: flex;
-  background-color: white;
-  border-radius: 8px 8px 0 0;
-  overflow: hidden;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.tab {
+.sub-circle-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   flex: 1;
-  text-align: center;
-  padding: 15px 0;
+}
+
+.sub-tab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s;
   color: #666;
-}
-
-.tab:hover {
   background: #f5f7fa;
+  border: 1px solid transparent;
 }
 
-.tab.active {
+.sub-tab:hover {
+  background: #e8ecff;
   color: #4a6cf8;
-  border-bottom: 2px solid #4a6cf8;
-  background: white;
+}
+
+.sub-tab.active {
+  background: linear-gradient(to right, #4a6cf8, #6a7cf8);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 108, 248, 0.25);
+}
+
+.publish-btn {
+  flex-shrink: 0;
+  border-radius: 20px;
+  font-weight: 500;
+  padding: 8px 20px;
+  box-shadow: 0 2px 8px rgba(74, 108, 248, 0.2);
 }
 
 /* 动态卡片样式 */
 .feed-list {
   background: white;
-  border-radius: 0 0 8px 8px;
-  min-height: 400px;
+  border-radius: 0 0 12px 12px;
+  min-height: 500px;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+
+/* 美化滚动条 */
+.feed-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feed-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feed-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+.feed-list::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
 }
 
 .feed-card {
   padding: 20px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s;
+  position: relative;
+}
+
+.feed-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 0;
+  background: linear-gradient(to bottom, #4a6cf8, #6a7cf8);
+  transition: height 0.3s;
 }
 
 .feed-card:hover {
-  background: #fafafa;
+  background: #fafbfc;
+}
+
+.feed-card:hover::before {
+  height: 100%;
 }
 
 .feed-card:last-child {
   border-bottom: none;
+  border-radius: 0 0 12px 12px;
 }
 
 .user-info {
@@ -897,18 +1135,33 @@ export default {
 /* 空状态 */
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
-  color: #999;
+  padding: 80px 20px;
+  background: white;
 }
 
 .empty-state i {
-  font-size: 64px;
-  color: #ddd;
-  margin-bottom: 16px;
+  font-size: 80px;
+  color: #d9e0ff;
+  margin-bottom: 20px;
+  display: block;
 }
 
-.empty-state p {
+.empty-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
   font-size: 14px;
+  color: #8590a6;
+  margin-bottom: 24px;
+}
+
+.empty-action-btn {
+  border-radius: 20px;
+  padding: 10px 28px;
 }
 
 /* 分页容器 */
@@ -1030,6 +1283,12 @@ export default {
   margin-left: 42px;
 }
 
+.reply-to-user {
+  color: #4a6cf8;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
 .comment-images {
   display: flex;
   gap: 8px;
@@ -1086,18 +1345,134 @@ export default {
   margin-left: 38px;
 }
 
+.reply-item .comment-actions {
+  margin-left: 38px;
+  margin-top: 8px;
+}
+
+/* 展开/折叠回复按钮 */
+.reply-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.reply-toggle:hover {
+  background: #e8ecff;
+  color: #4a6cf8;
+}
+
+.toggle-text {
+  font-size: 13px;
+  color: #8590a6;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.reply-toggle:hover .toggle-text {
+  color: #4a6cf8;
+}
+
+.reply-toggle i {
+  font-size: 14px;
+  color: #8590a6;
+  transition: all 0.3s;
+}
+
+.reply-toggle:hover i {
+  color: #4a6cf8;
+}
+
 /* 评论输入区域 */
 .comment-input-section {
   margin-top: 20px;
-  padding-top: 20px;
+  padding: 20px;
   border-top: 1px solid #f0f0f0;
+  background: #fafbfc;
+  border-radius: 8px;
+}
+
+.comment-tips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: linear-gradient(to right, #f0f4ff, #f8f9ff);
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4a6cf8;
+}
+
+.comment-tips i {
+  font-size: 16px;
+}
+
+.comment-textarea {
+  margin-bottom: 12px;
+}
+
+::v-deep .comment-textarea .el-textarea__inner {
+  border: 2px solid #e5e6eb;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: all 0.3s;
+  background: white;
+}
+
+::v-deep .comment-textarea .el-textarea__inner:focus {
+  border-color: #4a6cf8;
+  box-shadow: 0 0 0 3px rgba(74, 108, 248, 0.1);
 }
 
 .comment-actions-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  margin-top: 12px;
+}
+
+.comment-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #8590a6;
+}
+
+.comment-notice i {
+  font-size: 14px;
+  color: #f5a623;
+}
+
+.comment-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.cancel-reply-btn {
+  border-radius: 6px;
+}
+
+.submit-comment-btn {
+  border-radius: 6px;
+  background: linear-gradient(to right, #4a6cf8, #6a7cf8);
+  border: none;
+  box-shadow: 0 2px 6px rgba(74, 108, 248, 0.25);
+}
+
+.submit-comment-btn:hover {
+  box-shadow: 0 3px 8px rgba(74, 108, 248, 0.35);
 }
 
 /* Element UI 头像样式覆盖 */
@@ -1108,6 +1483,98 @@ export default {
 
 ::v-deep .el-avatar i {
   font-size: 20px;
+}
+
+/* 发布对话框样式 */
+::v-deep .publish-dialog {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+::v-deep .publish-dialog .el-dialog__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(to right, #f8f9ff, #f5f7ff);
+}
+
+::v-deep .publish-dialog .el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+::v-deep .publish-dialog .el-dialog__body {
+  padding: 24px;
+  background: #fafbfc;
+}
+
+.publish-form-wrapper {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.content-form-item {
+  margin-bottom: 20px;
+}
+
+.publish-textarea {
+  border-radius: 8px;
+}
+
+::v-deep .publish-textarea .el-textarea__inner {
+  border: 2px solid #e5e6eb;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: all 0.3s;
+}
+
+::v-deep .publish-textarea .el-textarea__inner:focus {
+  border-color: #4a6cf8;
+  box-shadow: 0 0 0 3px rgba(74, 108, 248, 0.1);
+}
+
+.circle-select-item {
+  margin-bottom: 0;
+}
+
+::v-deep .circle-select .el-input__inner {
+  border-radius: 8px;
+  border: 2px solid #e5e6eb;
+  transition: all 0.3s;
+}
+
+::v-deep .circle-select .el-input__inner:focus {
+  border-color: #4a6cf8;
+}
+
+.publish-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #fafbfc;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cancel-btn {
+  border-radius: 8px;
+  padding: 9px 20px;
+}
+
+.publish-submit-btn {
+  border-radius: 8px;
+  padding: 9px 24px;
+  background: linear-gradient(to right, #4a6cf8, #6a7cf8);
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(74, 108, 248, 0.3);
+}
+
+.publish-submit-btn:hover {
+  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.4);
 }
 
 /* Element UI 对话框样式覆盖 */

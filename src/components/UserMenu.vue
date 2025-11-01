@@ -63,7 +63,7 @@ export default {
         id: 0,
         userName: '',
         nickName: '',
-        email: this.$store.state.email,
+        email: '',
         phone: '',
         avatar: '',
         introduce: '',
