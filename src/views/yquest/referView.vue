@@ -463,13 +463,15 @@ export default {
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 5%;
+  padding: 11px 5%; /* 调整padding以配合固定高度 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 60px; /* 固定导航栏高度 */
+  box-sizing: border-box;
 }
 
 .navbar-brand {
@@ -524,6 +526,14 @@ export default {
 .nav-actions {
   display: flex;
   gap: 15px;
+  align-items: center;
+  height: 38px; /* 固定高度，与UserMenu高度一致 */
+}
+
+.nav-actions > div {
+  display: flex;
+  align-items: center;
+  height: 38px;
 }
 
 .nav-btn {

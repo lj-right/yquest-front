@@ -24,17 +24,27 @@ export default {
         this.$store.commit('setLoginStatus', true)
         this.$store.commit('setEmail', email)
         
-        // 尝试获取用户昵称
+        // 尝试获取用户信息（昵称和头像）
         try {
           const res = await axios.post('/api/authUser/queryByEmail', {
             email: email
           })
           if (res.data && (res.data.success === true || res.data.code === 200)) {
             const user = res.data.date || res.data.data || {}
+            // 设置昵称
             if (user.nickName) {
               this.$store.commit('setName', user.nickName)
             } else {
               this.$store.commit('setName', user.userName || email)
+            }
+            // 设置头像
+            const avatar = user.avatar || ''
+            if (avatar && 
+                typeof avatar === 'string' && 
+                avatar !== 'url' && 
+                avatar.trim() !== '' &&
+                (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+              this.$store.commit('setAvatar', avatar)
             }
           }
         } catch (error) {

@@ -375,7 +375,7 @@ export default {
     loginByWx() {
       this.$message.info("微信登录功能正在开发中，敬请期待！")
     },
-    // 获取用户昵称
+    // 获取用户昵称和头像
     async fetchUserNickName(email) {
       try {
         const res = await axios.post('/api/authUser/queryByEmail', {
@@ -383,10 +383,20 @@ export default {
         })
         if (res.data && (res.data.success === true || res.data.code === 200)) {
           const user = res.data.date || res.data.data || {}
+          // 设置昵称
           if (user.nickName) {
             this.$store.commit('setName', user.nickName)
           } else {
             this.$store.commit('setName', user.userName || email)
+          }
+          // 设置头像
+          const avatar = user.avatar || ''
+          if (avatar && 
+              typeof avatar === 'string' && 
+              avatar !== 'url' && 
+              avatar.trim() !== '' &&
+              (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+            this.$store.commit('setAvatar', avatar)
           }
         }
       } catch (error) {
@@ -527,13 +537,15 @@ export default {
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 5%;
+  padding: 11px 5%; /* 调整padding以配合固定高度 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 60px; /* 固定导航栏高度 */
+  box-sizing: border-box;
 }
 
 .navbar-brand {
@@ -588,6 +600,14 @@ export default {
 .nav-actions {
   display: flex;
   gap: 15px;
+  align-items: center;
+  height: 38px; /* 固定高度，与UserMenu高度一致 */
+}
+
+.nav-actions > div {
+  display: flex;
+  align-items: center;
+  height: 38px;
 }
 
 .nav-btn {

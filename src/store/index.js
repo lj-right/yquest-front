@@ -9,6 +9,7 @@ export default new Vuex.Store({
     name: '注册/登录',
     email: '',
     hasLogin: false,
+    avatar: '', // 用户头像URL
   },
   mutations: {
     // 修改状态的方法
@@ -20,6 +21,9 @@ export default new Vuex.Store({
     },
     setLoginStatus(state, newStatus) {
       state.hasLogin = newStatus
+    },
+    setAvatar(state, avatar) {
+      state.avatar = avatar || ''
     }
   },
   modules: {

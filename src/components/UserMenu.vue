@@ -5,10 +5,16 @@
       <span>注册/登录</span>
     </router-link>
 
-    <!-- 已登录：显示用户图标 + 下拉菜单 -->
+    <!-- 已登录：显示用户头像 + 下拉菜单 -->
     <el-dropdown v-else trigger="click" @command="handleCommand">
       <span class="user-menu-trigger">
-        <i class="el-icon-user"></i>
+        <el-avatar 
+          :src="userAvatarFromStore" 
+          :size="38"
+          class="user-avatar-display"
+        >
+          <i class="el-icon-user"></i>
+        </el-avatar>
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="settings">账号设置</el-dropdown-item>
@@ -83,9 +89,57 @@ export default {
         }
       }
       return !!token && hasLoginInStore
+    },
+    // 从 store 获取头像，避免每次都重新加载
+    userAvatarFromStore() {
+      return this.$store.state.avatar || ''
+    }
+  },
+  async mounted() {
+    // 组件挂载时，如果已登录且 store 中没有头像，才获取用户头像
+    if (this.isLoggedIn && !this.userAvatarFromStore) {
+      await this.loadUserAvatar()
+    }
+  },
+  watch: {
+    // 监听登录状态变化，登录后如果 store 中没有头像则加载
+    isLoggedIn(newVal) {
+      if (!newVal) {
+        this.$store.commit('setAvatar', '')
+      } else if (!this.userAvatarFromStore) {
+        this.loadUserAvatar()
+      }
     }
   },
   methods: {
+    // 加载用户头像（只在 store 中没有头像时调用）
+    async loadUserAvatar() {
+      if (!this.$store.state.email) return
+      
+      try {
+        const res = await axios.post('/api/authUser/queryByEmail', {
+          email: this.$store.state.email
+        })
+        if (res.data && (res.data.success === true || res.data.code === 200)) {
+          const user = res.data.date || res.data.data || {}
+          // 验证头像URL是否有效
+          const avatar = user.avatar || ''
+          if (avatar && 
+              typeof avatar === 'string' && 
+              avatar !== 'url' && 
+              avatar.trim() !== '' &&
+              (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+            // 存储到 store，这样所有页面都能共享
+            this.$store.commit('setAvatar', avatar)
+          } else {
+            this.$store.commit('setAvatar', '')
+          }
+        }
+      } catch (error) {
+        console.log('获取用户头像失败:', error)
+        this.$store.commit('setAvatar', '')
+      }
+    },
     handleCommand(cmd) {
       if (cmd === 'settings') {
         this.openSettings()
@@ -120,6 +174,17 @@ export default {
             sex: typeof u.sex === 'number' ? u.sex : 0,
             extJson: u.extJson || ''
           }
+          // 更新头像显示（同步到 store）
+          const avatar = u.avatar || ''
+          if (avatar && 
+              typeof avatar === 'string' && 
+              avatar !== 'url' && 
+              avatar.trim() !== '' &&
+              (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+            this.$store.commit('setAvatar', avatar)
+          } else {
+            this.$store.commit('setAvatar', '')
+          }
         } else {
           this.$message.error(res.data.message || '获取用户信息失败')
         }
@@ -153,6 +218,17 @@ export default {
           if (this.accountForm.nickName) {
             this.$store.commit('setName', this.accountForm.nickName)
           }
+          // 更新头像显示（同步到 store）
+          const avatar = this.accountForm.avatar || ''
+          if (avatar && 
+              typeof avatar === 'string' && 
+              avatar !== 'url' && 
+              avatar.trim() !== '' &&
+              (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+            this.$store.commit('setAvatar', avatar)
+          } else {
+            this.$store.commit('setAvatar', '')
+          }
           this.$message.success('资料已更新')
           this.settingsVisible = false
         } else {
@@ -176,6 +252,7 @@ export default {
       this.$store.commit('setLoginStatus', false)
       this.$store.commit('setEmail', '')
       this.$store.commit('setName', '注册/登录')
+      this.$store.commit('setAvatar', '') // 清除头像
       localStorage.removeItem('token')
       localStorage.removeItem('userEmail') // 清除保存的邮箱
       this.$message.success({ message: '已退出登录', duration: 800 })
@@ -189,6 +266,9 @@ export default {
 .user-menu-wrapper {
   display: inline-flex;
   align-items: center;
+  margin-left: 8px;
+  height: 38px; /* 固定高度，防止导航栏高度变化 */
+  vertical-align: middle;
 }
 .guest-login-btn {
   display: inline-flex;
@@ -211,22 +291,44 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
   cursor: pointer;
   transition: all 0.2s ease;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
+
 .user-menu-trigger:hover {
-  background: #e4e7ff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
 }
-.user-menu-trigger i {
-  font-size: 18px;
+
+.user-menu-trigger:hover .user-avatar-display {
+  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.4);
+}
+
+.user-avatar-display {
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0; /* 防止头像被压缩 */
+  display: inline-block; /* 确保固定尺寸 */
+}
+
+.avatar-preview {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-avatar {
+  border: 2px solid #e4e7ed;
+}
+
+.preview-tip {
+  font-size: 12px;
+  color: #909399;
 }
 </style>
 

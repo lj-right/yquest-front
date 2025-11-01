@@ -15,9 +15,7 @@
             </a>
           </div>
           <div class="nav-actions">
-            <button @click="handleLogout" class="nav-btn btn-logout">
-              <i class="el-icon-switch-button"></i> 退出登录
-            </button>
+            <UserMenu />
           </div>
         </nav>
       </el-header>
@@ -53,7 +51,12 @@
 
 <script>
 import axios from "axios"
+import UserMenu from '../../components/UserMenu.vue'
+
 export default {
+  components: {
+    UserMenu
+  },
   data() {
     return {
       tableData: [],
@@ -67,23 +70,6 @@ export default {
     closeSidebar() {
       this.sidebarVisible = false
     },
-    handleLogout() {
-      this.$confirm('确定要退出登录吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // 清除token
-        localStorage.removeItem('adminToken')
-        localStorage.removeItem('token')
-        localStorage.removeItem('rememberAdmin')
-        
-        this.$message.success('已退出登录')
-        this.$router.push('/admin/login')
-      }).catch(() => {
-        // 取消退出
-      })
-    }
   },
   mounted() {
     axios
@@ -98,11 +84,12 @@ export default {
 <style scoped>
 .el-header {
   padding: 0;
-  height: auto !important;
+  height: 60px !important; /* 固定高度，防止变化 */
   position: sticky;
   top: 0;
   z-index: 1000;
   background: white;
+  overflow: visible;
 }
 
 /* 侧边栏样式 */
@@ -214,10 +201,12 @@ export default {
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 20px;
+  padding: 11px 20px; /* 调整padding以配合固定高度 */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 60px; /* 固定导航栏高度 */
+  box-sizing: border-box;
 }
 
 .navbar-left {
@@ -262,12 +251,15 @@ export default {
 .nav-actions {
   display: flex;
   gap: 15px;
+  align-items: center;
+  height: 38px; /* 固定高度，与UserMenu高度一致 */
 }
 
 .nav-actions > div {
   display: flex;
   gap: 10px;
   align-items: center;
+  height: 38px;
 }
 
 .nav-btn {
@@ -328,7 +320,8 @@ export default {
   }
   
   .navbar {
-    padding: 15px 15px;
+    padding: 11px 15px; /* 保持固定高度 */
+    height: 60px; /* 确保固定高度 */
   }
 
   .brand-logo {
@@ -346,7 +339,8 @@ export default {
   }
   
   .navbar {
-    padding: 15px 15px;
+    padding: 11px 15px; /* 保持固定高度 */
+    height: 60px; /* 确保固定高度 */
   }
 
   .brand-logo {
@@ -415,7 +409,8 @@ export default {
 
 @media (max-width: 480px) {
   .navbar {
-    padding: 12px 10px;
+    padding: 11px 10px; /* 保持固定高度 */
+    height: 60px; /* 确保固定高度 */
   }
 
   .brand-logo {

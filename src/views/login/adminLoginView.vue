@@ -135,6 +135,9 @@ export default {
             this.$store.commit('setLoginStatus', true)
             this.$store.commit('setEmail', this.adminLogin.email)
             
+            // 获取用户信息（昵称和头像）
+            this.fetchUserInfo(this.adminLogin.email)
+            
             // 如果勾选了记住登录状态
             if (this.rememberMe) {
               localStorage.setItem("rememberAdmin", "true")
@@ -165,6 +168,34 @@ export default {
         bubble.style.animationDelay = `${delay}s`
         bubble.style.animationDuration = `${duration}s`
       })
+    },
+    // 获取用户信息（昵称和头像）
+    async fetchUserInfo(email) {
+      try {
+        const res = await axios.post('/api/authUser/queryByEmail', {
+          email: email
+        })
+        if (res.data && (res.data.success === true || res.data.code === 200)) {
+          const user = res.data.date || res.data.data || {}
+          // 设置昵称
+          if (user.nickName) {
+            this.$store.commit('setName', user.nickName)
+          } else {
+            this.$store.commit('setName', user.userName || email)
+          }
+          // 设置头像
+          const avatar = user.avatar || ''
+          if (avatar && 
+              typeof avatar === 'string' && 
+              avatar !== 'url' && 
+              avatar.trim() !== '' &&
+              (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+            this.$store.commit('setAvatar', avatar)
+          }
+        }
+      } catch (error) {
+        console.log('获取用户信息失败')
+      }
     },
   },
   mounted() {

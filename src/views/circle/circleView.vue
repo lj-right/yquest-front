@@ -83,7 +83,7 @@
             <div class="user-info">
               <div class="user-left">
                 <el-avatar 
-                  :src="moment.avatar || moment.userAvatar" 
+                  :src="getUserAvatar(moment)" 
                   :size="40"
                   class="user-avatar"
                 >
@@ -221,7 +221,7 @@
         <div class="detail-moment">
           <div class="user-info">
             <el-avatar 
-              :src="currentMoment.avatar || currentMoment.userAvatar" 
+              :src="getUserAvatar(currentMoment)" 
               :size="40"
               class="user-avatar"
             >
@@ -261,7 +261,7 @@
               <div class="comment-item">
                 <div class="comment-header-wrapper">
                   <el-avatar 
-                    :src="comment.avatar" 
+                    :src="getUserAvatar(comment)" 
                     :size="32"
                     class="comment-avatar"
                   >
@@ -296,7 +296,7 @@
                 >
                   <div class="comment-header-wrapper">
                     <el-avatar 
-                      :src="reply.avatar" 
+                      :src="getUserAvatar(reply)" 
                       :size="28"
                       class="comment-avatar"
                     >
@@ -756,6 +756,23 @@ export default {
                url !== 'url' && 
                (url.startsWith('http://') || url.startsWith('https://'))
       })
+    },
+
+    // 获取用户头像URL，如果无效则返回空字符串（显示默认图标）
+    getUserAvatar(user) {
+      if (!user) return ''
+      // 尝试多种可能的头像字段名
+      const avatar = user.avatar || user.userAvatar || ''
+      // 验证头像URL是否有效
+      if (avatar && 
+          typeof avatar === 'string' && 
+          avatar !== 'url' && 
+          avatar.trim() !== '' &&
+          (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'))) {
+        return avatar
+      }
+      // 如果头像无效，返回空字符串，el-avatar 会显示默认图标
+      return ''
     }
   }
 }
@@ -780,13 +797,15 @@ export default {
 .navbar {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 5%;
+  padding: 11px 5%; /* 调整padding以配合固定高度 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 60px; /* 固定导航栏高度 */
+  box-sizing: border-box;
 }
 
 .navbar-brand {
@@ -841,6 +860,14 @@ export default {
 .nav-actions {
   display: flex;
   gap: 15px;
+  align-items: center;
+  height: 38px; /* 固定高度，与UserMenu高度一致 */
+}
+
+.nav-actions > div {
+  display: flex;
+  align-items: center;
+  height: 38px;
 }
 
 .nav-btn {
@@ -1669,7 +1696,8 @@ export default {
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 15px 3%;
+    padding: 11px 3%; /* 保持固定高度 */
+    height: 60px; /* 确保固定高度 */
   }
 
   .nav-links {
@@ -1732,7 +1760,8 @@ export default {
 
 @media (max-width: 480px) {
   .navbar {
-    padding: 12px 2%;
+    padding: 11px 2%; /* 保持固定高度 */
+    height: 60px; /* 确保固定高度 */
   }
 
   .brand-logo {
