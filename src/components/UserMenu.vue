@@ -266,9 +266,10 @@ export default {
 .user-menu-wrapper {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   margin-left: 8px;
   height: 38px; /* 固定高度，防止导航栏高度变化 */
-  vertical-align: middle;
+  line-height: 38px; /* 与高度一致，确保垂直居中 */
 }
 .guest-login-btn {
   display: inline-flex;
@@ -296,6 +297,7 @@ export default {
   padding: 0;
   border: none;
   background: transparent;
+  vertical-align: middle; /* 确保与文本对齐 */
 }
 
 .user-menu-trigger:hover {
@@ -313,6 +315,8 @@ export default {
   cursor: pointer;
   flex-shrink: 0; /* 防止头像被压缩 */
   display: inline-block; /* 确保固定尺寸 */
+  vertical-align: middle; /* 确保与文本基线对齐 */
+  margin: 0; /* 清除可能的默认边距 */
 }
 
 .avatar-preview {

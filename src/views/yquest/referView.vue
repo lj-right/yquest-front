@@ -151,7 +151,7 @@
             <!-- 第五行：1列布局（链接信息） -->
             <div class="form-row">
               <el-form-item
-                label="内推直达链接"
+                label="直达链接"
                 prop="url"
                 class="form-col form-col-12"
               >

@@ -159,12 +159,12 @@
       custom-class="publish-dialog"
     >
       <div class="publish-form-wrapper">
-        <el-form :model="publishForm" label-width="0">
-          <el-form-item class="content-form-item">
+        <el-form :model="publishForm" label-width="100px">
+          <el-form-item label="发布内容" class="content-form-item">
             <el-input
               type="textarea"
               v-model="publishForm.content"
-              placeholder="分享你的想法、经验或问题...&#10;&#10;💡 温馨提示：请使用文明用语，共建和谐交流环境"
+              placeholder="分享你的想法、经验或问题... 温馨提示：请使用文明用语，共建和谐交流环境"
               :rows="8"
               maxlength="1000"
               show-word-limit
@@ -836,6 +836,9 @@ export default {
   font-weight: 500;
   transition: color 0.3s;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.5; /* 确保文本垂直居中 */
 }
 
 .nav-link:hover {
@@ -1539,18 +1542,56 @@ export default {
 }
 
 .cancel-reply-btn {
-  border-radius: 6px;
+  border-radius: 8px;
+  border-color: #e5e6eb;
+  color: #666;
+  background: #fff;
+  padding: 8px 16px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.cancel-reply-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  color: #333;
 }
 
 .submit-comment-btn {
-  border-radius: 6px;
-  background: linear-gradient(to right, #4a6cf8, #6a7cf8);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
   border: none;
-  box-shadow: 0 2px 6px rgba(74, 108, 248, 0.25);
+  box-shadow: 0 2px 8px rgba(74, 108, 248, 0.3);
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .submit-comment-btn:hover {
-  box-shadow: 0 3px 8px rgba(74, 108, 248, 0.35);
+  background: linear-gradient(135deg, #5b7cf9 0%, #9a5af9 100%);
+  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.submit-comment-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(74, 108, 248, 0.3);
+}
+
+.submit-comment-btn.is-loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* 按钮图标样式优化 */
+::v-deep .submit-comment-btn .el-icon-s-promotion {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 /* Element UI 头像样式覆盖 */
@@ -1594,6 +1635,14 @@ export default {
 
 .content-form-item {
   margin-bottom: 20px;
+}
+
+/* 统一标签样式，确保发布内容和选择圈子对齐 */
+::v-deep .content-form-item .el-form-item__label,
+::v-deep .circle-select-item .el-form-item__label {
+  text-align: left;
+  line-height: 40px;
+  padding: 0 12px 0 0;
 }
 
 .publish-textarea {
