@@ -129,6 +129,11 @@ export default {
             // 存储管理员token
             localStorage.setItem("adminToken", res.data.date.tokenValue)
             localStorage.setItem("token", res.data.date.tokenValue)
+            localStorage.setItem("userEmail", this.adminLogin.email) // 保存邮箱到 localStorage
+            
+            // 恢复 store 中的登录状态
+            this.$store.commit('setLoginStatus', true)
+            this.$store.commit('setEmail', this.adminLogin.email)
             
             // 如果勾选了记住登录状态
             if (this.rememberMe) {

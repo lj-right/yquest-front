@@ -353,9 +353,11 @@ export default {
           .then((res) => {
             if (res.data.code === 200 && res.data.date) {
               localStorage.setItem("token", res.data.date.tokenValue)
+              localStorage.setItem("userEmail", this.login.email) // 保存邮箱到 localStorage
               this.$store.commit("setLoginStatus", true)
               this.$store.commit("setEmail", this.login.email)
-              this.$store.dispatch("setNickNameByLogin", this.login.email)
+              // 尝试获取用户昵称
+              this.fetchUserNickName(this.login.email)
               this.$message.success({ message: "登录成功", duration: 750 })
               if (this.$route.query.redirect) {
                 this.$router.push(this.$route.query.redirect)
@@ -372,6 +374,25 @@ export default {
     },
     loginByWx() {
       this.$message.info("微信登录功能正在开发中，敬请期待！")
+    },
+    // 获取用户昵称
+    async fetchUserNickName(email) {
+      try {
+        const res = await axios.post('/api/authUser/queryByEmail', {
+          email: email
+        })
+        if (res.data && (res.data.success === true || res.data.code === 200)) {
+          const user = res.data.date || res.data.data || {}
+          if (user.nickName) {
+            this.$store.commit('setName', user.nickName)
+          } else {
+            this.$store.commit('setName', user.userName || email)
+          }
+        }
+      } catch (error) {
+        console.log('获取用户信息失败，使用邮箱作为名称')
+        this.$store.commit('setName', email)
+      }
     },
     registerUser() {
       axios

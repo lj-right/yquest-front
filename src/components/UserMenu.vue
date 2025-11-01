@@ -35,9 +35,6 @@
         <el-form-item label="手机">
           <el-input v-model="accountForm.phone" placeholder="请输入手机号" />
         </el-form-item>
-        <el-form-item label="头像URL">
-          <el-input v-model="accountForm.avatar" placeholder="请输入头像地址" />
-        </el-form-item>
         <el-form-item label="个人介绍">
           <el-input type="textarea" :rows="3" v-model="accountForm.introduce" placeholder="一句话介绍你自己" />
         </el-form-item>
@@ -75,7 +72,17 @@ export default {
   computed: {
     isLoggedIn() {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
-      return !!token && this.$store && this.$store.state && this.$store.state.hasLogin === true
+      const hasLoginInStore = this.$store && this.$store.state && this.$store.state.hasLogin === true
+      // 如果 token 存在但 store 中没有登录状态，尝试恢复
+      if (token && !hasLoginInStore) {
+        const email = localStorage.getItem('userEmail')
+        if (email) {
+          this.$store.commit('setLoginStatus', true)
+          this.$store.commit('setEmail', email)
+          return true
+        }
+      }
+      return !!token && hasLoginInStore
     }
   },
   methods: {
@@ -170,6 +177,7 @@ export default {
       this.$store.commit('setEmail', '')
       this.$store.commit('setName', '注册/登录')
       localStorage.removeItem('token')
+      localStorage.removeItem('userEmail') // 清除保存的邮箱
       this.$message.success({ message: '已退出登录', duration: 800 })
       this.$router.push('/login')
     }

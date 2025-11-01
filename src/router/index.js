@@ -79,6 +79,7 @@ const routes = [
     path: "/circle",
     name: "circle",
     component: () => import("../views/circle/circleView.vue"),
+    meta: { requireAuth: true }
   },
   {
     path: "/",

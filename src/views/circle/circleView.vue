@@ -164,7 +164,7 @@
             <el-input
               type="textarea"
               v-model="publishForm.content"
-              placeholder="分享你的想法...（支持文字、图片）&#10;&#10;💡 提示：使用文明用语，共建和谐社区"
+              placeholder="分享你的想法、经验或问题...&#10;&#10;💡 温馨提示：请使用文明用语，共建和谐交流环境"
               :rows="8"
               maxlength="1000"
               show-word-limit
@@ -174,7 +174,7 @@
           <el-form-item label="选择圈子" class="circle-select-item">
             <el-select 
               v-model="publishForm.circleId" 
-              placeholder="请选择适合的交流圈分类" 
+              placeholder="请选择要发布的圈子分类" 
               style="width: 100%"
               class="circle-select"
             >
@@ -345,7 +345,12 @@
               <i class="el-icon-info"></i>
               <span>文明交流，理性讨论 · 遵守社区准则</span>
             </div>
+            <div v-if="!$store.state.hasLogin" class="login-prompt">
+              <i class="el-icon-warning"></i>
+              <span>请先 <router-link to="/login" class="login-link">登录</router-link> 后再发表评论</span>
+            </div>
             <el-input
+              v-else
               type="textarea"
               v-model="commentForm.content"
               :placeholder="commentForm.replyType === 1 ? '写下你的评论...（文明交流，理性讨论）' : `回复 @${replyTarget?.userName}：表达你的看法...`"
@@ -355,7 +360,7 @@
               class="comment-textarea"
             >
             </el-input>
-            <div class="comment-actions-bar">
+            <div class="comment-actions-bar" v-if="$store.state.hasLogin">
               <div class="comment-notice">
                 <i class="el-icon-warning-outline"></i>
                 <span>提示：评论内容将经过敏感词检测</span>
@@ -618,6 +623,11 @@ export default {
 
     // 回复评论
     replyToComment(comment) {
+      if (!this.$store.state.hasLogin) {
+        this.$message.warning('请先登录后再回复评论')
+        this.$router.push('/login')
+        return
+      }
       this.commentForm.replyType = 2
       this.commentForm.targetId = comment.id
       this.replyTarget = comment
@@ -654,6 +664,12 @@ export default {
 
     // 提交评论
     async submitComment() {
+      if (!this.$store.state.hasLogin) {
+        this.$message.warning('请先登录后再发表评论')
+        this.$router.push('/login')
+        return
+      }
+      
       if (!this.commentForm.content.trim()) {
         this.$message.warning('请输入评论内容')
         return
@@ -1389,6 +1405,41 @@ export default {
 
 .reply-toggle:hover i {
   color: #4a6cf8;
+}
+
+/* 未登录提示 */
+.login-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  background: linear-gradient(to right, #fff7e6, #fffbf0);
+  border: 1px dashed #ffd591;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.login-prompt i {
+  font-size: 18px;
+  color: #fa8c16;
+}
+
+.login-prompt span {
+  font-size: 14px;
+  color: #666;
+}
+
+.login-link {
+  color: #4a6cf8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.login-link:hover {
+  color: #6a7cf8;
+  text-decoration: underline;
 }
 
 /* 评论输入区域 */
