@@ -25,6 +25,7 @@
           >
             后台管理
           </router-link>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>
@@ -109,9 +110,10 @@
 
 <script>
 import UserMenu from "../../components/UserMenu.vue"
+import NotificationBell from "../../components/NotificationBell.vue"
 export default {
   name: 'AuthorView',
-  components: { UserMenu },
+  components: { UserMenu, NotificationBell },
   computed: {
     // 判断是否为管理员用户
     isAdminUser() {

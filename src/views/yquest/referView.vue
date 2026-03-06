@@ -25,6 +25,7 @@
           >
             后台管理
           </router-link>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>
@@ -260,6 +261,7 @@
 <script>
 import axios from "axios"
 import UserMenu from "../../components/UserMenu.vue"
+import NotificationBell from "../../components/NotificationBell.vue"
 
 export default {
   data() {
@@ -327,7 +329,7 @@ export default {
       },
     }
   },
-  components: { UserMenu },
+  components: { UserMenu, NotificationBell },
   methods: {
     // 获取试用码 - 每日仅限一次
     async onGetTrialCode() {

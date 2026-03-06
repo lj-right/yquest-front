@@ -23,6 +23,7 @@
           >
             后台管理
           </router-link>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>
@@ -396,10 +397,11 @@
 <script>
 import axios from 'axios'
 import UserMenu from '../../components/UserMenu.vue'
+import NotificationBell from '../../components/NotificationBell.vue'
 
 export default {
   name: 'CircleView',
-  components: { UserMenu },
+  components: { UserMenu, NotificationBell },
   data() {
     return {
       // 圈子相关

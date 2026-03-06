@@ -25,6 +25,7 @@
           >
             后台管理
           </router-link>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>
@@ -209,9 +210,10 @@
 
 <script>
 import UserMenu from "../../components/UserMenu.vue"
+import NotificationBell from "../../components/NotificationBell.vue"
 export default {
   name: "YuestPage",
-  components: { UserMenu },
+  components: { UserMenu, NotificationBell },
   data() {
     return {
       isLogin: true,

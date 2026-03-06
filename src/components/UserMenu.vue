@@ -319,6 +319,17 @@ export default {
   margin: 0; /* 清除可能的默认边距 */
 }
 
+/* 覆盖 Element UI 默认的紫色背景 */
+.user-avatar-display >>> .el-avatar {
+  background-color: #ffffff;
+}
+
+/* 确保图标显示为灰色 */
+.user-avatar-display >>> .el-icon-user {
+  color: #909399;
+  font-size: 20px;
+}
+
 .avatar-preview {
   margin-top: 10px;
   display: flex;

@@ -25,6 +25,7 @@
           >
             后台管理
           </router-link>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>
@@ -156,6 +157,7 @@
 <script>
 import axios from "axios"
 import UserMenu from "../../components/UserMenu.vue"
+import NotificationBell from "../../components/NotificationBell.vue"
 
 export default {
   data() {
@@ -167,7 +169,7 @@ export default {
       total: ''
     }
   },
-  components: { UserMenu },
+  components: { UserMenu, NotificationBell },
   methods: {
     referLink(url) {
       if (url) {

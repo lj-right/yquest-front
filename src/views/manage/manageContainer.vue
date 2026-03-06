@@ -15,6 +15,7 @@
             </a>
           </div>
           <div class="nav-actions">
+            <NotificationBell />
             <UserMenu />
           </div>
         </nav>
@@ -52,10 +53,12 @@
 <script>
 import axios from "axios"
 import UserMenu from '../../components/UserMenu.vue'
+import NotificationBell from '../../components/NotificationBell.vue'
 
 export default {
   components: {
-    UserMenu
+    UserMenu,
+    NotificationBell
   },
   data() {
     return {
