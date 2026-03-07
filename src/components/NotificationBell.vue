@@ -27,6 +27,8 @@ export default {
       this.$store.commit('notification/TOGGLE_PANEL')
       if (this.$store.state.notification.isPanelOpen) {
         this.$store.dispatch('notification/fetchNotifications')
+        // 点击铃铛后立即清除红点
+        this.$store.commit('notification/SET_UNREAD_STATUS', false)
       }
     },
     handleClickOutside(event) {
@@ -66,23 +68,26 @@ export default {
   width: 38px;
   height: 38px;
   cursor: pointer;
-  color: #c9ccd0ff;
-  font-size: 22px;
+  color: #C9C9D0;
+  font-size: 20px;
   transition: all 0.2s ease;
   border-radius: 6px;
+}
+
+.bell-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 
 
 .unread-indicator {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  background: #ff4d4f;
+  top: 6px;
+  right: 6px;
+  width: 4.5px;
+  height: 4.5px;
+  background: #f93232ff;
   border-radius: 50%;
-  border: 2px solid #1E1E24;
 }
 
 .panel-fade-enter-active,
