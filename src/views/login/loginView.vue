@@ -134,7 +134,7 @@
                 <div v-else key="register">
                   <h2 class="form-title">加入 YQuest</h2>
 
-                  <form @submit.prevent="handleRegister">
+                  <form>
                     <div class="form-group">
                       <div class="input-icon">
                         <i class="el-icon-user"></i>
@@ -291,7 +291,6 @@ export default {
         confirmPassword: "",
       },
       isButtonDisabled: false, //验证码按钮禁用状态
-      rightCode: "", // 后端返回的验证码校验true(false)
     }
   },
   computed: {
@@ -333,15 +332,16 @@ export default {
         })
     },
     getEmailCode() {
-      axios
+      return axios
         .post("/api/authUser/auth/captcha", {
           email: this.register.email,
           extJson: this.register.emailCode,
         })
         .then((res) => {
-          if (res.data.code === 200) {
-            this.rightCode = res.data.date
+          if (res.data.code === 200 && res.data.date) {
+            return true;
           }
+          return false;
         })
     },
     handleLogin() {
@@ -406,12 +406,18 @@ export default {
         this.$store.commit('setName', email)
       }
     },
-    registerUser() {
+    async registerUser() {
+      //预处理表单验证
+       const isValid = await this.handleRegister();
+       if (!isValid) {
+        return;
+        }
+      //发送注册请求
       axios
         .post("/api/authUser/no-auth/register", {
           nickName: this.register.name,
           email: this.register.email,
-          password: this.login.password,
+          password: this.register.password,
           introduce: "第一次加入YQuest，期待更多机会！",
         })
         .then((res) => {
@@ -429,12 +435,12 @@ export default {
               confirmPassword: "",
             }
           } else {
-            this.$message.error("注册失败，已注册或验证码错误")
+            this.$message.error("该用户已注册，请登录")
           }
         })
     },
 
-    handleRegister() {
+    async handleRegister() {
       // 表单验证
       if (
         !this.register.name ||
@@ -444,38 +450,39 @@ export default {
         !this.register.confirmPassword
       ) {
         this.$message.error("请填写所有必填项")
-        return
+        return false
       }
       //name长度限制
       if (this.register.name.length < 1 || this.register.name.length > 5) {
         this.$message.error("用户名长度应在1到5个字符之间")
-        return
+        return false
       }
 
       // 密码验证
       if (this.register.password !== this.register.confirmPassword) {
         this.$message.error("两次输入的密码不一致！")
-        return
+        return false
       }
 
       // 密码复杂度校验
       if (this.register.password.length < 6) {
         this.$message.error("密码长度不能小于6位！")
-        return
+        return false
       }
 
       // 邮箱验证
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(this.register.email)) {
         this.$message.error("请输入有效的邮箱地址")
-        return
+        return false
       }
       // 验证码验证
-      this.getEmailCode
-      if (this.rightCode.value !== true) {
-        this.$message.error("验证码错误，请重新输入")
-        return
+      const isValid = await this.getEmailCode();
+      if (!isValid) {
+      this.$message.error("验证码错误，请重新输入")
+      return false
       }
+      return true
     },
     userIsLogin() {
       axios.get("/api/authUser/auth/isLogin").then((res) => {
