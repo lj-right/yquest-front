@@ -57,7 +57,7 @@
           <!-- 右侧表单区 -->
           <div class="form-section">
             <!-- 选项卡 -->
-            <div class="tabs">
+            <div class="tabs" v-if="!isForgotPassword">
               <button
                 class="tab-btn"
                 :class="{ active: isLogin }"
@@ -78,7 +78,7 @@
             <div class="form-container">
               <transition name="fade" mode="out-in">
                 <!-- 登录表单 -->
-                <div v-if="isLogin" key="login">
+                <div v-if="isLogin && !isForgotPassword" key="login">
                   <h2 class="form-title">欢迎回到 YQuest</h2>
 
                   <form @submit.prevent="handleLogin">
@@ -111,7 +111,7 @@
                     </div>
 
                     <div class="forgot-password">
-                      <a href="#">忘记密码？</a>
+                      <a href="#" @click.prevent="switchToForgotPassword">忘记密码？</a>
                     </div>
 
                     <button type="submit" class="btn">登 录</button>
@@ -126,6 +126,56 @@
                       >
                         <i class="el-icon-full-screen"></i>
                       </button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- 忘记密码表单 -->
+                <div v-else-if="isForgotPassword" key="forgotPassword">
+                  <h2 class="form-title">重置密码</h2>
+                  <p class="form-subtitle">请输入您的邮箱和验证码，密码将重置为123456</p>
+
+                  <form @submit.prevent="handleForgotPassword">
+                    <div class="form-group">
+                      <div class="input-icon">
+                        <i class="el-icon-message"></i>
+                      </div>
+                      <input
+                        type="email"
+                        id="forgotEmail"
+                        class="form-control"
+                        placeholder="请输入邮箱"
+                        v-model="forgotPassword.email"
+                        required
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <div class="input-icon">
+                        <i class="el-icon-time"></i>
+                      </div>
+                      <input
+                        type="text"
+                        id="forgotEmailCode"
+                        class="form-control email-code"
+                        placeholder="请输入邮箱验证码"
+                        v-model="forgotPassword.emailCode"
+                        required
+                      />
+                      <button
+                        :disabled="isForgotButtonDisabled"
+                        type="button"
+                        class="send-btn"
+                        @click="sendForgotCodeBtn"
+                      >
+                        {{ isForgotButtonDisabled ? "已发送" : "发送验证码" }}
+                      </button>
+                    </div>
+
+                    <button type="button" class="btn" @click="handleForgotPassword">重置密码</button>
+
+                    <div class="back-to-login">
+                      <a href="#" @click.prevent="switchToLogin">返回登录</a>
                     </div>
                   </form>
                 </div>
@@ -279,6 +329,7 @@ export default {
   data() {
     return {
       isLogin: true,
+      isForgotPassword: false,
       login: {
         email: "",
         password: "",
@@ -290,7 +341,12 @@ export default {
         password: "",
         confirmPassword: "",
       },
-      isButtonDisabled: false, //验证码按钮禁用状态
+      forgotPassword: {
+        email: "",
+        emailCode: "",
+      },
+      isButtonDisabled: false,
+      isForgotButtonDisabled: false,
     }
   },
   computed: {
@@ -302,9 +358,15 @@ export default {
   methods: {
     switchToLogin() {
       this.isLogin = true
+      this.isForgotPassword = false
     },
     switchToRegister() {
       this.isLogin = false
+      this.isForgotPassword = false
+    },
+    switchToForgotPassword() {
+      this.isForgotPassword = true
+      this.isLogin = true
     },
     goToRefer() {
       if (!this.$store.state.hasLogin) {
@@ -314,21 +376,78 @@ export default {
       }
     },
     sendCodeBtn() {
-      if (this.isButtonDisabled) return // 防止重复点击
+      if (this.isButtonDisabled) return
       axios
-        // .post("/api/authUser/email/send", {
         .post("/api/authUser/email/send", {
           email: this.register.email,
         })
         .then((res) => {
           if (res.data.code === 200) {
-            // 发送后btn禁用2分钟
-            this.isButtonDisabled = true // 禁用按钮
-            // 模拟异步操作，2秒后恢复按钮可用
+            this.isButtonDisabled = true
             setTimeout(() => {
               this.isButtonDisabled = false
             }, 120 * 1000)
           }
+        })
+    },
+    sendForgotCodeBtn() {
+      if (this.isForgotButtonDisabled) return
+      if (!this.forgotPassword.email) {
+        this.$message.warning("请输入邮箱")
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.forgotPassword.email)) {
+        this.$message.error("请输入有效的邮箱地址")
+        return
+      }
+      axios
+        .post("/api/authUser/email/send", {
+          email: this.forgotPassword.email,
+        })
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.$message.success("验证码已发送")
+            this.isForgotButtonDisabled = true
+            setTimeout(() => {
+              this.isForgotButtonDisabled = false
+            }, 120 * 1000)
+          } else {
+            this.$message.error(res.data.message || "发送验证码失败")
+          }
+        })
+        .catch(() => {
+          this.$message.error("发送验证码失败")
+        })
+    },    handleForgotPassword() {
+      if (!this.forgotPassword.email || !this.forgotPassword.emailCode) {
+        this.$message.warning("请填写邮箱和验证码")
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.forgotPassword.email)) {
+        this.$message.error("请输入有效的邮箱地址")
+        return
+      }
+      axios
+        .post("/api/authUser/auth/forgetPwd", {
+          email: this.forgotPassword.email,
+          extJson: this.forgotPassword.emailCode,
+        })
+        .then((res) => {
+          if (res.data.code === 200 && res.data.date) {
+            this.$message.success("密码已重置为123456，请登录后修改密码")
+            this.forgotPassword = {
+              email: "",
+              emailCode: "",
+            }
+            this.switchToLogin()
+          } else {
+            this.$message.error("验证码错误，请重新输入")
+          }
+        })
+        .catch(() => {
+          this.$message.error("重置密码失败，请稍后重试")
         })
     },
     getEmailCode() {
@@ -1068,6 +1187,30 @@ export default {
 .forgot-password a:hover {
   color: #8a4af8;
   text-decoration: underline;
+}
+
+.back-to-login {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.back-to-login a {
+  color: #4a6cf8;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.back-to-login a:hover {
+  color: #8a4af8;
+  text-decoration: underline;
+}
+
+.form-subtitle {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 25px;
 }
 
 .social-login {
