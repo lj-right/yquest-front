@@ -81,7 +81,27 @@
                 <div v-if="isLogin && !isForgotPassword" key="login">
                   <h2 class="form-title">欢迎回到 YQuest</h2>
 
-                  <form @submit.prevent="handleLogin">
+                  <!-- 登录方式切换 -->
+                  <div class="login-type-switch">
+                    <span 
+                      class="login-type-btn" 
+                      :class="{ active: !isCodeLogin }"
+                      @click="isCodeLogin = false"
+                    >
+                      密码登录
+                    </span>
+                    <span class="login-type-divider">|</span>
+                    <span 
+                      class="login-type-btn" 
+                      :class="{ active: isCodeLogin }"
+                      @click="isCodeLogin = true"
+                    >
+                      验证码登录
+                    </span>
+                  </div>
+
+                  <!-- 密码登录表单 -->
+                  <form v-if="!isCodeLogin" @submit.prevent="handleLogin">
                     <div class="form-group">
                       <div class="input-icon">
                         <i class="el-icon-message"></i>
@@ -115,19 +135,60 @@
                     </div>
 
                     <button type="submit" class="btn">登 录</button>
+                  </form>
 
-                    <div class="divider">或通过以下方式登录</div>
+                  <!-- 验证码登录表单 -->
+                  <form v-else @submit.prevent="handleCodeLogin">
+                    <div class="form-group">
+                      <div class="input-icon">
+                        <i class="el-icon-message"></i>
+                      </div>
+                      <input
+                        type="email"
+                        id="codeLoginEmail"
+                        class="form-control"
+                        placeholder="请输入邮箱"
+                        v-model="codeLogin.email"
+                        required
+                      />
+                    </div>
 
-                    <div class="social-login">
+                    <div class="form-group">
+                      <div class="input-icon">
+                        <i class="el-icon-time"></i>
+                      </div>
+                      <input
+                        type="text"
+                        id="codeLoginCode"
+                        class="form-control email-code"
+                        placeholder="请输入邮箱验证码"
+                        v-model="codeLogin.emailCode"
+                        required
+                      />
                       <button
+                        :disabled="isCodeLoginButtonDisabled"
                         type="button"
-                        class="social-btn"
-                        @click="loginByWx"
+                        class="send-btn"
+                        @click="sendCodeLoginBtn"
                       >
-                        <i class="el-icon-full-screen"></i>
+                        {{ isCodeLoginButtonDisabled ? "已发送" : "发送验证码" }}
                       </button>
                     </div>
+
+                    <button type="submit" class="btn">登 录</button>
                   </form>
+
+                  <div class="divider">或通过以下方式登录</div>
+
+                  <div class="social-login">
+                    <button
+                      type="button"
+                      class="social-btn"
+                      @click="loginByWx"
+                    >
+                      <i class="el-icon-full-screen"></i>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- 忘记密码表单 -->
@@ -330,9 +391,14 @@ export default {
     return {
       isLogin: true,
       isForgotPassword: false,
+      isCodeLogin: false,
       login: {
         email: "",
         password: "",
+      },
+      codeLogin: {
+        email: "",
+        emailCode: "",
       },
       register: {
         name: "",
@@ -347,6 +413,7 @@ export default {
       },
       isButtonDisabled: false,
       isForgotButtonDisabled: false,
+      isCodeLoginButtonDisabled: false,
     }
   },
   computed: {
@@ -435,7 +502,7 @@ export default {
           extJson: this.forgotPassword.emailCode,
         })
         .then((res) => {
-          if (res.data.code === 200 && res.data.date) {
+          if (res.data.code === 200 && !!res.data.date) {
             this.$message.success("密码已重置为123456，请登录后修改密码")
             this.forgotPassword = {
               email: "",
@@ -448,6 +515,83 @@ export default {
         })
         .catch(() => {
           this.$message.error("重置密码失败，请稍后重试")
+        })
+    },
+    sendCodeLoginBtn() {
+      if (this.isCodeLoginButtonDisabled) return
+      if (!this.codeLogin.email) {
+        this.$message.warning("请输入邮箱")
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.codeLogin.email)) {
+        this.$message.error("请输入有效的邮箱地址")
+        return
+      }
+      axios
+        .post("/api/authUser/email/sendToLogin", {
+          email: this.codeLogin.email,
+        })
+        .then((res) => {
+          if (res.data.code === 200) {
+            this.$message.success("验证码已发送")
+            this.isCodeLoginButtonDisabled = true
+            setTimeout(() => {
+              this.isCodeLoginButtonDisabled = false
+            }, 120 * 1000)
+          } else {
+            this.$message.error(res.data.message || "发送验证码失败")
+          }
+        })
+        .catch(() => {
+          this.$message.error("发送验证码失败")
+        })
+    },
+    handleCodeLogin() {
+      if (!this.codeLogin.email || !this.codeLogin.emailCode) {
+        this.$message.warning("请填写邮箱和验证码")
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.codeLogin.email)) {
+        this.$message.error("请输入有效的邮箱地址")
+        return
+      }
+      axios
+        .post("/api/authUser/auth/captchaToLogin", {
+          email: this.codeLogin.email,
+          extJson: this.codeLogin.emailCode,
+        })
+        .then((res) => {
+          if (res.data.code === 200 && res.data.date === true) {
+            return axios.post("/api/authUser/auth/login", {
+              email: this.codeLogin.email,
+              extJson: this.codeLogin.emailCode,
+              status: 2,
+            })
+          } else {
+            throw new Error("验证码错误或用户不存在")
+          }
+        })
+        .then((res) => {
+          if (res.data.code === 200 && res.data.date) {
+            localStorage.setItem("token", res.data.date.tokenValue)
+            localStorage.setItem("userEmail", this.codeLogin.email)
+            this.$store.commit("setLoginStatus", true)
+            this.$store.commit("setEmail", this.codeLogin.email)
+            this.fetchUserNickName(this.codeLogin.email)
+            this.$message.success({ message: "登录成功", duration: 750 })
+            if (this.$route.query.redirect) {
+              this.$router.push(this.$route.query.redirect)
+            } else {
+              this.$router.push("/")
+            }
+          } else {
+            this.$message.error(res.data.message || "登录失败")
+          }
+        })
+        .catch((err) => {
+          this.$message.error(err.message || "登录失败，请稍后重试")
         })
     },
     getEmailCode() {
@@ -494,7 +638,7 @@ export default {
       }
     },
     loginByWx() {
-      this.$message.info("微信登录功能正在开发中，敬请期待！")
+      this.$message.info("微信登录功能已被禁用！")
     },
     // 获取用户昵称和头像
     async fetchUserNickName(email) {
@@ -1035,6 +1179,34 @@ export default {
   font-size: 1.8rem;
   margin-bottom: 25px;
   text-align: center;
+}
+
+.login-type-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.login-type-btn {
+  font-size: 14px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.login-type-btn:hover {
+  color: #4a6cf8;
+}
+
+.login-type-btn.active {
+  color: #4a6cf8;
+  font-weight: 600;
+}
+
+.login-type-divider {
+  margin: 0 15px;
+  color: #ddd;
 }
 
 .form-group {
