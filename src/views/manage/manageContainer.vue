@@ -23,7 +23,6 @@
 
       <el-container>
         <el-aside width="220px" :class="['sidebar', { 'sidebar-visible': sidebarVisible }]">
-          <div class="sidebar-overlay" @click="closeSidebar" v-if="sidebarVisible"></div>
           <div class="sidebar-menu">
             <router-link to="/manage/refer" class="menu-item">
               内推审核管理
@@ -105,10 +104,6 @@ export default {
   position: relative;
   z-index: 1;
   overflow-y: auto;
-}
-
-.sidebar-overlay {
-  display: none;
 }
 
 .sidebar-menu {
@@ -373,17 +368,6 @@ export default {
 
   .sidebar-visible {
     transform: translateX(0) !important;
-  }
-
-  .sidebar-overlay {
-    display: block;
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 998;
   }
 
   /* 主内容区域始终占满全宽 */
