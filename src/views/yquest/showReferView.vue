@@ -8,12 +8,22 @@
         >
       </a>
 
+      <!-- 桌面端导航链接 -->
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
         <router-link to="/showRefer" class="nav-link">内推机会</router-link>
         <router-link to="/circle" class="nav-link">求职交流</router-link>
         <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
+      </div>
+
+      <!-- 移动端汉堡菜单按钮 -->
+      <div class="mobile-menu-btn" @click="toggleMobileMenu">
+        <div :class="['menu-icon', { active: mobileMenuOpen }]">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
 
       <div class="nav-actions">
@@ -30,6 +40,18 @@
         </div>
       </div>
     </nav>
+
+    <!-- 移动端菜单 -->
+    <div :class="['mobile-menu', { open: mobileMenuOpen }]">
+      <div class="mobile-menu-content">
+        <router-link to="/yquest" class="mobile-nav-link" @click="closeMobileMenu">首页</router-link>
+        <router-link to="/showRefer" class="mobile-nav-link" @click="closeMobileMenu">内推机会</router-link>
+        <router-link to="/circle" class="mobile-nav-link" @click="closeMobileMenu">求职交流</router-link>
+        <router-link to="/refer" class="mobile-nav-link" @click="closeMobileMenu">我要内推</router-link>
+        <router-link to="/aboutMe" class="mobile-nav-link" @click="closeMobileMenu">关于作者</router-link>
+        <router-link v-if="isAdminUser" to="/manage" class="mobile-nav-link" @click="closeMobileMenu">后台管理</router-link>
+      </div>
+    </div>
 
     <!-- 内推码主体内容 -->
     <div class="main-content">
@@ -59,53 +81,36 @@
         </div>
       </div>
 
-      <div class="table-container">
-        <el-card class="table-card">
-          <el-table :data="tableData" style="width: 100%" stripe>
-            <el-table-column
-              prop="company"
-              label="公司名称"
-              width="150"
-              sortable
-            >
-            </el-table-column>
-            <el-table-column prop="refercode" label="内推码" width="120">
-            </el-table-column>
-            <el-table-column prop="industry" label="行业" width="120">
-            </el-table-column>
-            <el-table-column prop="name" label="提交人" width="120">
-            </el-table-column>
-            <el-table-column
-              prop="description"
-              label="描述"
-              min-width="180"
-            ></el-table-column>
-            <el-table-column prop="url" label="内推官方链接" min-width="180">
-            </el-table-column>
-            <el-table-column fixed="right" label="操作" width="120">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  link
-                  size="small"
-                  @click="referLink(scope.row.url)"
-                  >前往内推地址</el-button
-                >
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <div class="pagination-container">
-            <el-pagination
-              :current-page="pageNo"
-              :page-size="pageSize"
-              :total="this.total"
-              @current-change="currentChange"
-              layout="total, prev, pager, next"
-              background
-            />
+      <div class="refer-cards-container">
+        <div 
+          v-for="item in tableData" 
+          :key="item.id"
+          class="refer-card"
+          @click="referLink(item.url)"
+        >
+          <div class="refer-card-header">
+            <h3 class="company-name">{{ item.company }}</h3>
           </div>
-        </el-card>
+          <div class="refer-card-info">
+            <span class="refer-type">{{ item.industry }}</span>
+            <span class="refer-code">{{ item.refercode }}</span>
+          </div>
+          <div class="refer-card-footer">
+            <span class="submitted-by">{{ item.name }}</span>
+            <span class="view-btn">查看</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination-container">
+        <el-pagination
+          :current-page="pageNo"
+          :page-size="pageSize"
+          :total="this.total"
+          @current-change="currentChange"
+          layout="total, prev, pager, next"
+          background
+        />
       </div>
     </div>
 
@@ -166,11 +171,20 @@ export default {
       searchKeyword: "",
       pageNo: 1,
       pageSize: 10, // 每页显示条数
-      total: ''
+      total: '',
+      mobileMenuOpen: false
     }
   },
   components: { UserMenu, NotificationBell },
   methods: {
+    // 切换移动端菜单
+    toggleMobileMenu() {
+      this.mobileMenuOpen = !this.mobileMenuOpen
+    },
+    // 关闭移动端菜单
+    closeMobileMenu() {
+      this.mobileMenuOpen = false
+    },
     referLink(url) {
       if (url) {
         window.open(url, "_blank") // 新标签页打开
@@ -427,6 +441,91 @@ export default {
   overflow: hidden;
 }
 
+.refer-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.refer-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+}
+
+.refer-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(74, 108, 248, 0.15);
+  border-color: #4a6cf8;
+}
+
+.refer-card-header {
+  margin-bottom: 12px;
+}
+
+.company-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.refer-card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.refer-type {
+  background: #f0f4ff;
+  color: #4a6cf8;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.refer-code {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.refer-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submitted-by {
+  font-size: 13px;
+  color: #666;
+}
+
+.view-btn {
+  background: linear-gradient(#4a6cf8);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.3);
+}
+
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -493,29 +592,149 @@ export default {
   font-size: 14px;
 }
 
+/* 移动端菜单样式 */
+.mobile-menu-btn {
+  display: none;
+  cursor: pointer;
+  z-index: 101;
+}
+
+.menu-icon {
+  width: 24px;
+  height: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.menu-icon span {
+  display: block;
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: #333;
+  border-radius: 2px;
+  opacity: 1;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.menu-icon span:nth-child(1) {
+  top: 0;
+}
+
+.menu-icon span:nth-child(2) {
+  top: 9px;
+}
+
+.menu-icon span:nth-child(3) {
+  top: 18px;
+}
+
+.menu-icon.active span:nth-child(1) {
+  top: 9px;
+  transform: rotate(135deg);
+}
+
+.menu-icon.active span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.menu-icon.active span:nth-child(3) {
+  top: 9px;
+  transform: rotate(-135deg);
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 80%;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+}
+
+.mobile-menu.open {
+  right: 0;
+}
+
+.mobile-menu-content {
+  padding: 80px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mobile-nav-link {
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: color 0.3s;
+}
+
+.mobile-nav-link:hover {
+  color: #4a6cf8;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
-    padding: 15px;
-    height: auto; /* 纵向排列时允许高度自适应 */
-    min-height: 60px; /* 保持最小高度 */
+    padding: 11px 3%;
+    height: 60px;
   }
 
   .nav-links {
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
   }
 
   .main-content {
     padding: 20px 15px;
   }
 
+  .search-section {
+    padding: 0 5px;
+  }
+
   .search-box {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .search-box .el-input {
+    width: 100%;
+  }
+
+  .search-box .el-button {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .search-box .el-button .el-icon,
+  .search-box .el-button div {
+    width: auto !important;
+  }
+
+  .refer-cards-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .refer-card {
+    padding: 20px;
   }
 
   .footer-content {
@@ -525,6 +744,17 @@ export default {
 
   .stats-section .el-col {
     margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    gap: 10px;
+  }
+
+  .search-box .el-button {
+    padding: 12px 20px;
+    font-size: 14px;
   }
 }
 </style>
