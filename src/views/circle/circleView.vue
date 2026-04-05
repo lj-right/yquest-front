@@ -111,6 +111,10 @@
             </div>
             
             <div class="post-actions">
+              <div class="action-item" :class="{ 'liked': getLikeData(moment.id, 0).isLiked }" @click.stop="toggleLike(moment.id, 0)">
+                <i :class="getLikeData(moment.id, 0).isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
+                <span>{{ getLikeData(moment.id, 0).account || 0 }}</span>
+              </div>
               <div class="action-item" @click.stop="viewMomentDetail(moment)">
                 <i class="el-icon-chat-dot-round"></i>
                 <span>{{ moment.replyCount || 0 }}</span>
@@ -118,10 +122,6 @@
               <div class="action-item">
                 <i class="el-icon-star-off"></i>
                 <span>收藏</span>
-              </div>
-              <div class="action-item">
-                <i class="el-icon-share"></i>
-                <span>分享</span>
               </div>
             </div>
           </div>
@@ -284,6 +284,10 @@
                   />
                 </div>
                 <div class="comment-actions">
+                  <span class="like-btn" :class="{ 'liked': getLikeData(comment.id, 1).isLiked }" @click.stop="toggleLike(comment.id, 1)">
+                    <i :class="getLikeData(comment.id, 1).isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
+                    {{ getLikeData(comment.id, 1).account || 0 }}
+                  </span>
                   <span class="reply-btn" @click="replyToComment(comment)">回复</span>
                 </div>
               </div>
@@ -322,6 +326,10 @@
                     />
                   </div>
                   <div class="comment-actions">
+                    <span class="like-btn" :class="{ 'liked': getLikeData(reply.id, 2).isLiked }" @click.stop="toggleLike(reply.id, 2)">
+                      <i :class="getLikeData(reply.id, 2).isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
+                      {{ getLikeData(reply.id, 2).account || 0 }}
+                    </span>
                     <span class="reply-btn" @click.stop="replyToComment(reply)">回复</span>
                   </div>
                 </div>
@@ -441,7 +449,11 @@ export default {
       replyTarget: null,
       commentSubmitting: false,
       // 回复折叠控制
-      expandedReplies: {} // { commentId: true/false }
+      expandedReplies: {}, // { commentId: true/false }
+      // 点赞状态存储
+      momentLikes: {}, // { momentId: { isLiked: false, account: 0 } }
+      commentLikes: {}, // { commentId: { isLiked: false, account: 0 } }
+      replyLikes: {} // { replyId: { isLiked: false, account: 0 } }
     }
   },
   computed: {
@@ -521,6 +533,10 @@ export default {
           const result = res.data.date || res.data.data || {}
           this.momentList = result.result || []
           this.pagination.total = result.total || 0
+          // 初始化点赞状态
+          if (this.$store.state.hasLogin) {
+            this.initMomentLikes(this.momentList)
+          }
         } else {
           this.$message.error(res.data.message || '获取动态列表失败')
         }
@@ -612,6 +628,10 @@ export default {
         })
         if (res.data.success || res.data.code === 200) {
           this.comments = res.data.date || res.data.data || []
+          // 初始化评论点赞状态
+          if (this.$store.state.hasLogin) {
+            this.initCommentLikes(this.comments)
+          }
         } else {
           this.$message.error(res.data.message || '获取评论失败')
         }
@@ -775,6 +795,127 @@ export default {
       }
       // 如果头像无效，返回空字符串，el-avatar 会显示默认图标
       return ''
+    },
+
+    // ========== 点赞功能 ==========
+    // 获取点赞状态和数量
+    async fetchLikeStatus(id, type) {
+      try {
+        const res = await axios.post('/api/shareLike/isLiked', {
+          momentId: type === 0 ? id : 0,
+          commentId: type === 1 || type === 2 ? id : 0,
+          type: type
+        })
+        if (res.data.code === 200) {
+          return res.data.date || false
+        }
+        return false
+      } catch (error) {
+        console.error('获取点赞状态失败:', error)
+        return false
+      }
+    },
+
+    // 获取点赞数量
+    async fetchLikeCount(id, type) {
+      try {
+        const res = await axios.post('/api/shareLike/getAccount', {
+          momentId: type === 0 ? id : 0,
+          commentId: type === 1 || type === 2 ? id : 0,
+          type: type
+        })
+        if (res.data.code === 200) {
+          return res.data.date || 0
+        }
+        return 0
+      } catch (error) {
+        console.error('获取点赞数量失败:', error)
+        return 0
+      }
+    },
+
+    // 初始化动态点赞状态
+    async initMomentLikes(momentList) {
+      for (const moment of momentList) {
+        const isLiked = await this.fetchLikeStatus(moment.id, 0)
+        const account = await this.fetchLikeCount(moment.id, 0)
+        this.$set(this.momentLikes, moment.id, { isLiked, account })
+      }
+    },
+
+    // 初始化评论点赞状态
+    async initCommentLikes(comments) {
+      for (const comment of comments) {
+        const isLiked = await this.fetchLikeStatus(comment.id, 1)
+        const account = await this.fetchLikeCount(comment.id, 1)
+        this.$set(this.commentLikes, comment.id, { isLiked, account })
+        // 处理回复
+        if (comment.children && comment.children.length > 0) {
+          for (const reply of comment.children) {
+            const replyIsLiked = await this.fetchLikeStatus(reply.id, 2)
+            const replyAccount = await this.fetchLikeCount(reply.id, 2)
+            this.$set(this.replyLikes, reply.id, { isLiked: replyIsLiked, account: replyAccount })
+          }
+        }
+      }
+    },
+
+    // 点赞/取消点赞
+    async toggleLike(id, type) {
+      if (!this.$store.state.hasLogin) {
+        this.$message.warning('请先登录后再点赞')
+        this.$router.push('/login')
+        return
+      }
+
+      let likeData
+      if (type === 0) {
+        likeData = this.momentLikes[id] || { isLiked: false, account: 0 }
+      } else if (type === 1) {
+        likeData = this.commentLikes[id] || { isLiked: false, account: 0 }
+      } else {
+        likeData = this.replyLikes[id] || { isLiked: false, account: 0 }
+      }
+
+      try {
+        const res = await axios.post('/api/shareLike/add', {
+          momentId: type === 0 ? id : 0,
+          commentId: type === 1 || type === 2 ? id : 0,
+          type: type
+        })
+        
+        if (res.data.code === 200 && res.data.date === true) {
+          // 更新本地状态
+          const newIsLiked = !likeData.isLiked
+          const newAccount = newIsLiked ? likeData.account + 1 : Math.max(0, likeData.account - 1)
+          
+          if (type === 0) {
+            this.$set(this.momentLikes, id, { isLiked: newIsLiked, account: newAccount })
+          } else if (type === 1) {
+            this.$set(this.commentLikes, id, { isLiked: newIsLiked, account: newAccount })
+          } else {
+            this.$set(this.replyLikes, id, { isLiked: newIsLiked, account: newAccount })
+          }
+          
+          this.$message.success(newIsLiked ? '点赞成功' : '已取消点赞')
+        } else {
+          this.$message.error(res.data.message || '操作失败')
+        }
+      } catch (error) {
+        console.error('点赞操作失败:', error)
+        this.$message.error('网络异常，操作失败')
+      }
+    },
+
+    // 获取点赞数据
+    getLikeData(id, type) {
+      if (type === 0) {
+        return this.momentLikes[id] || { isLiked: false, account: 0 }
+      } else if (type === 1) {
+        return this.commentLikes[id] || { isLiked: false, account: 0 }
+      } else {
+        return this.replyLikes[id] || { isLiked: false, account: 0 }
+      }
     }
   }
 }
@@ -1176,6 +1317,14 @@ export default {
   color: #4a6cf8;
 }
 
+.action-item.liked {
+  color: #f56c6c;
+}
+
+.action-item.liked:hover {
+  color: #f78989;
+}
+
 .action-item i {
   font-size: 18px;
 }
@@ -1355,6 +1504,31 @@ export default {
 .comment-actions {
   margin-top: 8px;
   margin-left: 42px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.like-btn {
+  font-size: 13px;
+  color: #8590a6;
+  cursor: pointer;
+  transition: color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.like-btn:hover {
+  color: #4a6cf8;
+}
+
+.like-btn.liked {
+  color: #f56c6c;
+}
+
+.like-btn.liked:hover {
+  color: #f78989;
 }
 
 .reply-btn {
