@@ -1,5 +1,5 @@
 <template>
-  <div class="container-wrapper">
+  <div class="page-container">
     <!-- 导航栏 -->
     <nav class="navbar">
       <a href="#" class="navbar-brand">
@@ -247,340 +247,225 @@ export default {
 </script>
 
 <style scoped>
-/* 全局样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.container-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
-  color: #333;
-}
-
-/* 导航栏样式 */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 11px 5%; /* 调整padding以配合固定高度 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 60px; /* 固定导航栏高度 */
-  box-sizing: border-box;
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-logo {
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
-  color: #4a6cf8;
-}
-
-.brand-logo span {
-  color: #8a4af8;
-}
-
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: #555;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #4a6cf8;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #4a6cf8;
-  transition: width 0.3s;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  height: 38px; /* 固定高度，与UserMenu高度一致 */
-}
-
-.nav-actions > div {
-  display: flex;
-  align-items: center;
-  height: 38px;
-}
-
-.nav-btn {
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.btn-login {
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
-}
-
-.btn-login:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
-}
-
-.btn-admin {
-  background: transparent;
-  color: #4a6cf8;
-  border: none;
-  margin-left: -6px;
-}
-
-
-/* 主体内容 */
+/* ── Homepage — Minimalist ────────────────────── */
 .home-content {
-  max-width: 1200px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: var(--space-16) var(--space-5);
 }
 
-/* 英雄区域 */
+/* Hero */
 .hero {
   text-align: center;
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  padding-bottom: 60px;
+  padding: var(--space-24) 0 var(--space-32);
 }
 
-.hero-text {
-  flex: 1;
-}
+.hero-text { max-width: 680px; margin: 0 auto; }
 
 .hero-text h1 {
-  font-size: 2.8rem;
-  line-height: 1.2;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 3rem;
+  font-weight: var(--font-bold);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-5);
+  letter-spacing: var(--tracking-tight);
 }
 
 .hero-text p {
-  font-size: 1.2rem;
-  color: #666;
-  margin-bottom: 30px;
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-10);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--font-normal);
+  letter-spacing: var(--tracking-normal);
 }
 
 .hero-actions {
-  width: 350px;
   display: flex;
-  gap: 20px;
+  justify-content: center;
+  gap: var(--space-4);
 }
 
 .hero-btn {
-  padding: 14px 30px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
   text-decoration: none;
-  transition: all 0.3s;
+  transition: all var(--transition-base);
+  letter-spacing: var(--tracking-normal);
 }
 
 .hero-btn.primary {
-  background: linear-gradient(to right, #4a6cf8, #8a4af8);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.hero-btn.primary:hover {
+  background: var(--color-primary-dark);
 }
 
 .hero-btn.secondary {
-  background: white;
-  color: #4a6cf8;
-  border: 2px solid #4a6cf8;
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
-.hero-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.hero-btn.secondary:hover {
+  border-color: var(--color-text-primary);
 }
 
-/* 特点区域 */
+/* Features */
 .features-section {
-  margin-bottom: 80px;
+  margin-bottom: var(--space-32);
 }
 
 .section-title {
   text-align: center;
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 50px;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-16);
+  letter-spacing: var(--tracking-tight);
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  gap: var(--space-8);
 }
 
 .feature-card {
-  background: white;
-  border-radius: 16px;
-  padding: 30px;
   text-align: center;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s;
+  padding: var(--space-8) var(--space-6);
+  transition: opacity var(--transition-base);
 }
 
-.feature-card:hover {
-  transform: translateY(-10px);
-}
+.feature-card:hover { opacity: 0.7; }
 
 .feature-icon {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #e4e7ff 100%);
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  color: #4a6cf8;
-  font-size: 28px;
-  transition: opacity 0.3s ease;
+  margin: 0 auto var(--space-5);
+  color: var(--color-text-primary);
+  font-size: 22px;
 }
 
 .feature-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: #333;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-2);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-normal);
 }
 
-/* 热门职位 */
-.jobs-section {
-  margin-bottom: 80px;
+.feature-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
 }
+
+/* Jobs */
+.jobs-section { margin-bottom: var(--space-32); }
 
 .section-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  align-items: baseline;
+  margin-bottom: var(--space-10);
 }
+
+.section-header .section-title { margin-bottom: 0; }
 
 .view-all {
-  color: #4a6cf8;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-normal);
+  transition: color var(--transition-fast);
 }
 
-.view-all:hover {
-  color: #8a4af8;
-  text-decoration: underline;
-}
+.view-all:hover { color: var(--color-text-primary); }
 
 .jobs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+  gap: var(--space-5);
 }
 
 .job-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  border: 1px solid var(--color-border);
+  transition: border-color var(--transition-base);
 }
 
 .job-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(74, 108, 248, 0.15);
+  border-color: var(--color-text-tertiary);
 }
 
 .job-header {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .company-logo {
-  width: 70px;
-  height: 65px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #e4e7ff 100%);
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
-  color: #4a6cf8;
+  font-weight: var(--font-bold);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: var(--tracking-wide);
 }
 
 .job-info h3 {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
-  color: #333;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-1);
+  color: var(--color-text-primary);
 }
 
 .company-name {
-  color: #666;
-  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
 }
 
 .job-details {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 
 .job-tag {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  letter-spacing: var(--tracking-normal);
 }
 
 .salary {
-  background: #f0f4ff;
-  color: #4a6cf8;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
 }
 
 .experience {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: var(--color-bg);
+  color: var(--color-text-tertiary);
 }
 
 .job-actions {
@@ -590,126 +475,42 @@ export default {
 }
 
 .referral-code {
-  color: #8a4af8;
-  font-weight: 500;
-  font-size: 0.95rem;
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-normal);
 }
 
 .apply-btn {
   text-decoration: none;
-  background: linear-gradient(to right, #4a6cf8, #8a4af8);
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding: 7px var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  letter-spacing: var(--tracking-normal);
+  transition: background var(--transition-fast);
 }
 
-.apply-btn:hover {
-  background: linear-gradient(to right, #3a5ce6, #7a3ae6);
+.apply-btn:hover { background: var(--color-primary-dark); }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 1024px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .jobs-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* 页脚样式 */
-.footer {
-  background: white;
-  padding: 30px 5%;
-  border-top: 1px solid #eee;
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.footer-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4a6cf8;
-  margin-bottom: 15px;
-}
-
-.footer-logo span {
-  color: #8a4af8;
-}
-
-.footer-links {
-  padding: 6px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footer-link {
-  color: #666;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-link:hover {
-  color: #4a6cf8;
-}
-
-.footer-bottom {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-  text-align: center;
-  color: #888;
-  font-size: 14px;
-}
-
-/* 响应式设计 */
-@media (max-width: 900px) {
-  .navbar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
-    height: auto; /* 纵向排列时允许高度自适应 */
-    min-height: 60px; /* 保持最小高度 */
-  }
-
-  .nav-links {
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .footer-content {
-    flex-direction: column;
-    gap: 30px;
-    text-align: center;
-  }
-
-  .footer-links {
-    align-items: center;
-  }
-
-  .hero {
-    flex-direction: column;
-  }
-
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .jobs-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 901px) and (max-width: 1100px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .jobs-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (max-width: 768px) {
+  .home-content { padding: var(--space-10) var(--space-4); }
+  .hero { padding: var(--space-16) 0 var(--space-20); }
+  .hero-text h1 { font-size: var(--text-3xl); }
+  .hero-text p { font-size: var(--text-base); }
+  .hero-actions { flex-direction: column; width: 100%; max-width: 320px; margin: 0 auto; }
+  .hero-btn { width: 100%; justify-content: center; }
+  .features-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+  .jobs-grid { grid-template-columns: 1fr; }
+  .section-title { font-size: var(--text-2xl); margin-bottom: var(--space-10); }
+  .section-header { flex-direction: column; gap: var(--space-4); text-align: center; }
 }
 </style>

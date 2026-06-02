@@ -1,5 +1,5 @@
 <template>
-  <div class="container-wrapper">
+  <div class="page-container">
     <!-- 导航栏 -->
     <nav class="navbar">
       <a href="#" class="navbar-brand">
@@ -445,519 +445,201 @@ export default {
 </script>
 
 <style scoped>
-/* 全局样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.container-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
-  color: #333;
-}
-
-/* 导航栏样式 */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 11px 5%; /* 调整padding以配合固定高度 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 60px; /* 固定导航栏高度 */
-  box-sizing: border-box;
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-logo {
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
-  color: #4a6cf8;
-}
-
-.brand-logo span {
-  color: #8a4af8;
-}
-
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: #555;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #4a6cf8;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #4a6cf8;
-  transition: width 0.3s;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  height: 38px; /* 固定高度，与UserMenu高度一致 */
-}
-
-.nav-actions > div {
-  display: flex;
-  align-items: center;
-  height: 38px;
-}
-
-.nav-btn {
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.btn-login {
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
-}
-
-.btn-login:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
-}
-
-.btn-admin {
-  background: transparent;
-  color: #4a6cf8;
-  border: none;
-  margin-left: -6px;
-}
-
-
-/* 主体内容：控制整体居中 */
+/* ── Referral Form Page ───────────────────────── */
 .main-content {
   flex: 1;
-  padding: 40px 2% ;
-  max-width: 1600px;
+  padding: var(--space-10) 2%;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 40px;
-  padding-bottom: 5px;
+  margin-bottom: var(--space-10);
 }
 
 .page-header h1 {
-  font-size: 2.5rem;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  font-weight: 700;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
   letter-spacing: -0.5px;
 }
 
 .page-header p {
-  font-size: 1.1rem;
-  color: #666;
-  max-width: 600px;
-  margin: 0 auto;
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
 }
 
-/* 表单整体居中容器 */
 .form-center-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
   width: 100%;
-  padding: 0 15px;
 }
 
-/* 表单核心容器：左侧表单+右侧侧边栏 */
 .form-container {
   display: flex;
-  gap: 30px;
+  gap: var(--space-8);
   align-items: flex-start;
-  max-width: 1300px; /* 限制最大宽度，避免大屏下表单过宽 */
+  max-width: 1100px;
   width: 100%;
 }
 
-/* 左侧表单主体：多列布局核心 */
 .inner-form {
   flex: 1;
-  min-width: 300px;
-  max-width: 800px; /* 限制表单最大宽度，提升填写体验 */
-  background: white;
-  padding: 35px;
-  border-radius: 12px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
+  min-width: 320px;
+  max-width: 740px;
+  background: var(--color-surface);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
-.inner-form:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-}
-
-/* 表单行：控制每一行的布局 */
 .form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* 列之间的间距 */
-  margin-bottom: 22px; /* 行之间的间距 */
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
   align-items: flex-start;
 }
 
-/* 表单列：控制列宽（参考Bootstrap栅格） */
 .form-col {
   flex: 1;
-  min-width: 240px; /* 最小列宽，避免小屏幕下挤压 */
-  position: relative;
+  min-width: 240px;
 }
 
-/* 6列（占半宽）和12列（占全宽） */
-.form-col-6 {
-  flex: 0 0 calc(50% - 10px); /* 50%宽度 - 一半间距（gap/2） */
-}
+.form-col-6 { flex: 0 0 calc(50% - 10px); }
+.form-col-12 { flex: 0 0 100%; }
 
-.form-col-12 {
-  flex: 0 0 100%; /* 100%宽度 */
-}
-
-/* 表单输入框样式优化 */
 .form-input {
-  border-radius: 8px !important;
-  border-color: #e5e6eb !important;
-  transition: all 0.3s ease !important;
-  height: 44px !important;
-  width: 100% !important; /* 确保输入框占满列宽 */
+  border-radius: var(--radius-md) !important;
+  border-color: var(--color-border) !important;
+  transition: all var(--transition-base) !important;
+  width: 100% !important;
 }
 
-
-.form-input:focus {
-  border-color: #8a4af8 !important;
-  box-shadow: 0 0 0 2px rgba(138, 74, 248, 0.15) !important;
+.form-input:focus,
+.el-textarea__inner:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 93, 231, 0.1) !important;
 }
 
-/* 文本域特殊处理 */
-.el-textarea.form-input {
-  height: auto !important;
-  min-height: 100px !important;
-  resize: vertical !important; /* 仅允许垂直拉伸 */
-}
-
-/* 按钮行：右对齐 */
-.form-btn-row {
-  margin-top: 10px;
-  margin-bottom: 0;
-}
+.form-btn-row { margin-top: var(--space-3); margin-bottom: 0; }
 
 .form-btn-row .el-form-item {
   margin-bottom: 0 !important;
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
+  gap: var(--space-3);
 }
 
-/* 表单按钮样式 */
 .submit-btn {
-  background: linear-gradient(to right, #4a6cf8, #8a4af8) !important;
+  background: var(--gradient-primary) !important;
   border: none !important;
-  padding: 10px 24px !important;
-  border-radius: 8px !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
+  padding: var(--space-3) var(--space-6) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-semibold) !important;
+  transition: all var(--transition-base) !important;
 }
 
 .submit-btn:hover {
-  opacity: 0.95 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3) !important;
+  box-shadow: var(--shadow-primary);
+  transform: translateY(-1px);
 }
 
 .reset-btn {
-  padding: 10px 24px !important;
-  border-radius: 8px !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: #666 !important;
-  border-color: #e5e6eb !important;
-  transition: all 0.3s ease !important;
+  padding: var(--space-3) var(--space-6) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-medium) !important;
+  color: var(--color-text-secondary) !important;
+  border-color: var(--color-border) !important;
+  transition: all var(--transition-base) !important;
 }
 
 .reset-btn:hover {
-  background-color: #f9fafb !important;
-  border-color: #d1d5db !important;
+  background: var(--color-bg) !important;
+  border-color: var(--color-text-tertiary) !important;
 }
 
-/* 右侧侧边栏：固定宽度，参考大厂表单侧边栏 */
 .form-sidebar {
-  flex: 0 0 220px; /* 固定宽度，不随屏幕拉伸 */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex: 0 0 240px;
 }
 
-/* 内推须知卡片 */
 .form-tips-card {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .tips-title {
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 15px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+  font-weight: var(--font-semibold);
 }
 
 .tips-list {
   list-style: none;
-  color: #666;
-  font-size: 14px;
-  line-height: 1.8;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
 }
 
 .tips-list li {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2);
+  padding-left: var(--space-4);
   position: relative;
 }
 
-/* 页脚样式 */
-.footer {
-  background: white;
-  padding: 50px 5% 20px;
-  border-top: 1px solid #eee;
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 40px;
-}
-
-.footer-info {
-  flex: 1;
-  min-width: 250px;
-}
-
-.footer-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4a6cf8;
-  margin-bottom: 15px;
-  transition: color 0.3s ease;
-}
-
-.footer-logo:hover {
-  color: #3a5be8;
-}
-
-.footer-logo span {
-  color: #8a4af8;
-}
-
-.footer-info p {
-  color: #666;
-  line-height: 1.6;
-  max-width: 300px;
-}
-
-.footer-links-group {
-  flex: 0 0 auto;
-  min-width: 150px;
-}
-
-.footer-links-group h3 {
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 18px;
-  font-weight: 600;
-  position: relative;
-  padding-bottom: 8px;
-}
-
-.footer-links-group h3::after {
+.tips-list li::before {
   content: "";
   position: absolute;
-  bottom: 0;
   left: 0;
-  width: 30px;
-  height: 2px;
-  background: #8a4af8;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  opacity: 0.4;
 }
 
-.footer-links {
-  padding: 6px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.footer-link {
-  color: #666;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.footer-link:hover {
-  color: #4a6cf8;
-  transform: translateX(3px);
-}
-
-.footer-bottom {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-  text-align: center;
-  color: #888;
-  font-size: 14px;
-}
-
-/* 响应式适配：多列→单列，侧边栏→下方 */
-@media (max-width: 1024px) {
-  /* 中等屏幕：侧边栏宽度缩小 */
-  .form-sidebar {
-    flex: 0 0 280px;
-  }
-}
-
+/* ── Responsive ───────────────────────────────── */
 @media (max-width: 768px) {
-  /* 小屏幕：表单+侧边栏纵向排列 */
   .form-container {
     flex-direction: column;
-    max-width: 700px;
   }
 
-  /* 小屏幕：多列→单列（取消固定宽度，改为自适应） */
-  .form-col-6 {
-    flex: 0 0 100%;
-  }
+  .form-col-6 { flex: 0 0 100%; }
 
-  /* 小屏幕：侧边栏宽度自适应 */
   .form-sidebar {
     flex: 1;
-    min-width: 300px;
-    max-width: 100%;
-  }
-
-  .navbar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
-  }
-
-  .nav-links {
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
     width: 100%;
   }
 
-  .main-content {
-    padding: 30px 15px;
-  }
+  .main-content { padding: var(--space-6) var(--space-4); }
 
-  .page-header h1 {
-    font-size: 2rem;
-  }
+  .page-header h1 { font-size: var(--text-2xl); }
 
-  .inner-form {
-    padding: 25px 20px;
-    max-width: 100%;
-  }
+  .inner-form { padding: var(--space-6) var(--space-4); }
 
-  /* 小屏幕：按钮纵向排列 */
   .form-btn-row .el-form-item {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-2);
   }
 
   .form-btn-row .el-button {
     width: 100% !important;
   }
-
-  .footer-content {
-    flex-direction: column;
-    gap: 30px;
-  }
-
-  .footer-links-group {
-    min-width: 100%;
-  }
 }
 
 @media (max-width: 480px) {
-  .nav-link {
-    font-size: 14px;
-  }
-
-  .page-header h1 {
-    font-size: 1.8rem;
-  }
-
-  .form-tips-card,
-  .form-help-card {
-    padding: 20px 15px;
-  }
-
-  .el-form-item {
-    margin-bottom: 15px !important;
-  }
-
-  .el-form-item__label {
-    font-size: 14px !important;
-    width: 90px !important;
-  }
-
-  /* 超小屏幕：列最小宽度缩小 */
-  .form-col {
-    min-width: 100%;
-  }
+  .page-header h1 { font-size: var(--text-xl); }
+  .form-col { min-width: 100%; }
 }
 </style>

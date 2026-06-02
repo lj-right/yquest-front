@@ -1,0 +1,130 @@
+/* ============================================================
+   YQuest Design Tokens — Professional Design System
+   Grid: 8pt (base unit = 4px)
+   Typography: Geometric ratio scale
+   ============================================================ */
+
+:root {
+  /* ── Color System — Warm Copper / Amber ───────── */
+  /*   Referral = people + trust. Warm, human, premium. */
+
+  /* Primary — warm bronze-copper */
+  --color-primary:        #CA6F1E;
+  --color-primary-hover:  #B0651A;
+  --color-primary-light:  #FEF7ED;
+  --color-primary-soft:   #FFFBF5;
+  --color-primary-dark:   #9A5517;
+
+  /* Accent — muted gold */
+  --color-accent:         #C6903A;
+  --color-accent-hover:   #B07E2E;
+
+  /* Neutral — warm stone */
+  --color-text-primary:   #1C1917;
+  --color-text-secondary: #78716C;
+  --color-text-tertiary:  #A8A29E;
+  --color-text-inverse:   #FFFFFF;
+
+  --color-bg:             #FAFAF9;
+  --color-bg-alt:         #F5F5F4;
+  --color-surface:        #FFFFFF;
+  --color-surface-hover:  #FAFAF9;
+
+  --color-border:         #E7E5E4;
+  --color-border-light:   #F5F5F4;
+
+  /* Semantic — warm-toned */
+  --color-success:        #059669;
+  --color-success-light:  #ECFDF5;
+  --color-warning:        #D97706;
+  --color-warning-light:  #FFFBEB;
+  --color-danger:         #DC2626;
+  --color-danger-light:   #FEF2F2;
+  --color-info:           #0EA5E9;
+  --color-info-light:     #F0F9FF;
+
+  /* No gradients — solid warmth over decoration */
+  --gradient-primary:     #CA6F1E;
+  --gradient-subtle:      #FAFAF9;
+
+  /* ── Typography ───────────────────────────────── */
+  --font-family:          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  --font-mono:            "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+
+  /* Type scale — 1.25 ratio */
+  --text-xs:              0.75rem;    /* 12px */
+  --text-sm:              0.875rem;   /* 14px */
+  --text-base:            1rem;       /* 16px */
+  --text-lg:              1.125rem;   /* 18px */
+  --text-xl:              1.25rem;    /* 20px */
+  --text-2xl:             1.5rem;     /* 24px */
+  --text-3xl:             1.875rem;   /* 30px */
+  --text-4xl:             2.25rem;    /* 36px */
+
+  --font-normal:          400;
+  --font-medium:          500;
+  --font-semibold:        600;
+  --font-bold:            700;
+
+  --leading-tight:        1.25;
+  --leading-normal:       1.5;
+  --leading-relaxed:      1.625;
+  --leading-loose:        1.75;
+
+  /* ── Spacing — 8pt grid ──────────────────────── */
+  --space-0:              0;
+  --space-1:              4px;
+  --space-2:              8px;
+  --space-3:              12px;
+  --space-4:              16px;
+  --space-5:              20px;
+  --space-6:              24px;
+  --space-8:              32px;
+  --space-10:             40px;
+  --space-12:             48px;
+  --space-14:             56px;
+  --space-16:             64px;
+  --space-20:             80px;
+  --space-24:             96px;
+  --space-32:             128px;
+
+  /* ── Border Radius — Apple: subtle, clean ────── */
+  --radius-sm:            4px;
+  --radius-md:            6px;
+  --radius-lg:            8px;
+  --radius-xl:            10px;
+  --radius-2xl:           12px;
+  --radius-full:          9999px;
+
+  /* ── Shadows — barely there ──────────────────── */
+  --shadow-xs:            0 1px 1px rgba(0, 0, 0, 0.03);
+  --shadow-sm:            0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:            0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg:            0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-xl:            0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-primary:       0 2px 8px rgba(202, 111, 30, 0.18);
+
+  /* ── Letter Spacing — Apple: airy, refined ───── */
+  --tracking-tight:       -0.022em;
+  --tracking-normal:      0;
+  --tracking-wide:        0.02em;
+  --tracking-wider:       0.04em;
+
+  /* ── Transitions ─────────────────────────────── */
+  --transition-fast:      150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:      200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:      300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Layout ──────────────────────────────────── */
+  --navbar-height:        48px;
+  --sidebar-width:        240px;
+  --content-max-width:    1040px;
+  --content-wide-max:    1200px;
+
+  /* ── Z-Index Scale ───────────────────────────── */
+  --z-dropdown:           100;
+  --z-sticky:             200;
+  --z-overlay:            300;
+  --z-modal:              400;
+  --z-toast:              500;
+}

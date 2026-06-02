@@ -84,336 +84,145 @@ export default {
 </script>
 
 <style scoped>
-.el-header {
-  padding: 0;
-  height: 60px !important; /* 固定高度，防止变化 */
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: white;
-  overflow: visible;
-}
-
-/* 侧边栏样式 */
-.sidebar {
-  background: white;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  min-height: calc(100vh - 60px);
-  padding: 30px 0;
-  transition: transform 0.3s ease;
-  position: relative;
-  z-index: 1;
-  overflow-y: auto;
-}
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 20px;
-}
-
-.menu-item {
-  display: block;
-  padding: 16px 20px;
-  color: #606266;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  font-size: 15px;
-  font-weight: 500;
-  text-align: left;
-  position: relative;
-  letter-spacing: 0.3px;
-}
-
-.menu-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 0;
-  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
-  border-radius: 0 3px 3px 0;
-  transition: height 0.3s ease;
-}
-
-.menu-item:hover {
-  background: #f5f7fa;
-  color: #4a6cf8;
-  padding-left: 24px;
-}
-
-.menu-item:hover::before {
-  height: 60%;
-}
-
-.menu-item.router-link-active {
-  background: linear-gradient(135deg, #4a6cf8 0%, #8a4af8 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.25);
-  padding-left: 24px;
-}
-
-.menu-item.router-link-active::before {
-  height: 0;
-}
-
-/* 主内容区域 */
-.main-content {
-  background-color: #f5f7fa;
-  padding: 0;
-  min-height: calc(100vh - 60px);
-  overflow-x: hidden;
-  transition: margin-left 0.3s ease;
-  position: relative;
-  z-index: 0;
-}
-
-.el-main {
-  padding: 0;
-}
-/* 全局样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
+/* ── Admin Layout ─────────────────────────────── */
 .container-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
-  color: #333;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
 }
 
-.el-container {
-  height: 100%;
+.el-container { height: 100%; }
+
+.el-header {
+  padding: 0;
+  height: var(--navbar-height) !important;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  overflow: visible;
 }
 
-/* 导航栏样式 */
 .navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 11px 20px; /* 调整padding以配合固定高度 */
+  background: rgba(255, 255, 255, 0.84);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-5);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 60px; /* 固定导航栏高度 */
+  height: var(--navbar-height);
   box-sizing: border-box;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
+.navbar-left { display: flex; align-items: center; gap: var(--space-3); }
 
 .menu-toggle {
   display: none;
   background: none;
   border: none;
-  font-size: 24px;
-  color: #4a6cf8;
+  font-size: 22px;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.3s;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
 }
 
-.menu-toggle:hover {
-  background: #f0f4ff;
+.menu-toggle:hover { background: var(--color-bg); }
+
+.nav-actions { gap: var(--space-3); }
+.nav-actions > div { gap: var(--space-2); }
+
+/* ── Sidebar ──────────────────────────────────── */
+.sidebar {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  min-height: calc(100vh - var(--navbar-height));
+  padding: var(--space-6) 0;
+  transition: transform var(--transition-slow);
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
 }
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
+.sidebar-menu { display: flex; flex-direction: column; gap: var(--space-1); padding: 0 var(--space-4); }
+
+.menu-item {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-secondary);
   text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  position: relative;
 }
 
-.brand-logo {
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
-  color: #4a6cf8;
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: var(--color-primary);
+  border-radius: 0 3px 3px 0;
+  transition: height var(--transition-base);
 }
 
-.brand-logo span {
-  color: #8a4af8;
+.menu-item:hover {
+  background: var(--color-bg);
+  color: var(--color-primary);
+  padding-left: var(--space-6);
 }
 
-.nav-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  height: 38px; /* 固定高度，与UserMenu高度一致 */
+.menu-item:hover::before { height: 50%; }
+
+.menu-item.router-link-active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding-left: var(--space-6);
 }
 
-.nav-actions > div {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  height: 38px;
+.menu-item.router-link-active::before { height: 0; }
+
+/* ── Main content ─────────────────────────────── */
+.main-content {
+  background: var(--color-bg);
+  padding: 0;
+  min-height: calc(100vh - var(--navbar-height));
+  overflow-x: hidden;
 }
 
-.nav-btn {
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s;
-}
+.el-main { padding: 0; }
 
-.btn-info {
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
-  cursor: default;
-}
-
-.btn-login {
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
-}
-
-.btn-login:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
-}
-
-.btn-logout {
-  background: #fff1f0;
-  color: #e74c3c;
-  border: 1px solid #ffccc7;
-  cursor: pointer;
-}
-
-.btn-logout:hover {
-  background: #ffe4e1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15);
-}
-
-.btn-register {
-  background: linear-gradient(to right, #4a6cf8, #8a4af8);
-  color: white;
-  border: none;
-}
-
-.btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(74, 108, 248, 0.3);
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .sidebar {
-    width: 200px;
-  }
-  
-  .navbar {
-    padding: 11px 15px; /* 保持固定高度 */
-    height: 60px; /* 确保固定高度 */
-  }
-
-  .brand-logo {
-    font-size: 20px;
-  }
-
-  .brand-logo span {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 180px;
-  }
-  
-  .navbar {
-    padding: 11px 15px; /* 保持固定高度 */
-    height: 60px; /* 确保固定高度 */
-  }
-
-  .brand-logo {
-    font-size: 20px;
-  }
-
-  .brand-logo span {
-    font-size: 12px;
-  }
-}
-
+/* ── Responsive ───────────────────────────────── */
 @media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
+  .menu-toggle { display: block; }
 
   .sidebar {
     position: fixed;
-    top: 60px;
-    left: 0;
-    height: calc(100vh - 60px);
+    top: var(--navbar-height); left: 0;
+    height: calc(100vh - var(--navbar-height));
     z-index: 1000;
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-xl);
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
   }
 
-  .sidebar-visible {
-    transform: translateX(0) !important;
-  }
+  .sidebar-visible { transform: translateX(0) !important; }
 
-  /* 主内容区域始终占满全宽 */
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-  }
+  .main-content { margin-left: 0; width: 100%; }
 
-  .nav-actions {
-    gap: 5px;
-  }
-
-  .nav-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .nav-btn i {
-    display: inline;
-  }
-
-  .brand-logo span {
-    display: none;
-  }
+  .brand-logo span { display: none; }
 }
 
 @media (max-width: 480px) {
-  .navbar {
-    padding: 11px 10px; /* 保持固定高度 */
-    height: 60px; /* 确保固定高度 */
-  }
-
-  .brand-logo {
-    font-size: 18px;
-  }
-
-  .nav-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-
-  .menu-item {
-    font-size: 14px;
-    padding: 14px 20px;
-  }
+  .brand-logo { font-size: var(--text-base); }
+  .menu-item { font-size: var(--text-sm); padding: var(--space-3) var(--space-4); }
 }
-
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="container-wrapper">
+  <div class="page-container">
     <!-- 导航栏 -->
     <nav class="navbar">
       <a href="#" class="navbar-brand">
@@ -124,392 +124,92 @@ export default {
 </script>
 
 <style scoped>
-/* 全局样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.container-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ff 100%);
-  color: #333;
-}
-
-/* 导航栏样式 */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 11px 5%; /* 调整padding以配合固定高度 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 60px; /* 固定导航栏高度 */
-  box-sizing: border-box;
-}
-
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.brand-logo {
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
-  color: #4a6cf8;
-}
-
-.brand-logo span {
-  color: #8a4af8;
-}
-
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: #555;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #4a6cf8;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #4a6cf8;
-  transition: width 0.3s;
-}
-
-.nav-link:hover::after {
+/* ── About Author Page ────────────────────────── */
+.main-content {
+  flex: 1;
+  padding: var(--space-10) 5%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
   width: 100%;
 }
 
-.nav-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  height: 38px; /* 固定高度，与UserMenu高度一致 */
-}
-
-.nav-actions > div {
-  display: flex;
-  align-items: center;
-  height: 38px;
-}
-
-.nav-btn {
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.btn-login {
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
-}
-
-.btn-login:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
-}
-
-.btn-admin {
-  background: transparent;
-  color: #4a6cf8;
-  border: none;
-  margin-left: -6px;
-}
-
-
-/* 主体内容 */
-.main-content {
-  flex: 1;
-  padding: 30px 5%;
-}
-
 .page-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: var(--space-10);
 }
 
 .page-header h1 {
-  font-size: 2.5rem;
-  color: #1a1a1a;
-  margin-bottom: 12px;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.5px;
 }
 
-.page-header p {
-  font-size: 1.1rem;
-  color: #666;
+.page-header h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
 }
 
-/* 联系方式样式 */
-body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: #333;
-  line-height: 1.6;
-  padding: 20px;
-  min-height: 100vh;
-}
+/* Contacts */
+.contact-info { margin-top: var(--space-8); }
 
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.main-content {
-  padding: 40px;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 40px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.page-header h1 {
-  font-size: 2.8rem;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.page-header p {
-  font-size: 1.4rem;
-  color: #7f8c8d;
-  font-weight: 300;
-}
-
-.author-profile {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.author-avatar {
-  flex: 1;
-  min-width: 250px;
-  text-align: center;
-}
-
-.author-avatar img {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 5px solid #f1f1f1;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.author-bio {
-  flex: 2;
-  min-width: 300px;
-}
-
-.author-bio h2 {
-  color: #2c3e50;
-  margin-bottom: 15px;
-  font-size: 1.8rem;
-}
-
-.author-bio p {
-  margin-bottom: 15px;
-  color: #555;
-  line-height: 1.8;
-}
-
-.contact-info {
-  padding: 30px;
-  border-radius: 10px;
-  margin-top: 20px;
-}
-
-.contact-info h3 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #3498db;
-  display: inline-block;
-}
 .introduce-way {
-  font-size: 1.2rem;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 15px;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-5);
   display: inline-block;
 }
 
 .contact-methods {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
 }
 
 .contact-card {
-  flex: 1;
-  min-width: 200px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  background: var(--color-surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   text-align: center;
-  transition: transform 0.3s ease;
+  transition: all var(--transition-base);
 }
 
 .contact-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
 }
 
 .contact-card i {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  color: #3498db;
+  font-size: 32px;
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
 }
 
 .contact-card h4 {
-  margin-bottom: 10px;
-  color: #0080ff;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
 }
 
 .contact-card a {
-  color: #6926e6;
+  color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.3s;
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
 }
 
-.contact-card a:hover {
-  color: #0080ff;
-}
+.contact-card a:hover { color: var(--color-primary-dark); }
 
+/* ── Responsive ───────────────────────────────── */
 @media (max-width: 768px) {
-  .main-content {
-    padding: 20px;
-  }
-
-  .author-profile {
-    flex-direction: column;
-  }
-
-  .contact-card {
-    min-width: 100%;
-  }
-}
-
-/* 页脚样式 */
-.footer {
-  background: white;
-  padding: 30px 5%;
-  border-top: 1px solid #eee;
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.footer-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4a6cf8;
-  margin-bottom: 15px;
-}
-
-.footer-logo span {
-  color: #8a4af8;
-}
-
-.footer-links {
-  padding: 6px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footer-link {
-  color: #666;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-link:hover {
-  color: #4a6cf8;
-}
-
-.footer-bottom {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-  text-align: center;
-  color: #888;
-  font-size: 14px;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
-    height: auto; /* 纵向排列时允许高度自适应 */
-    min-height: 60px; /* 保持最小高度 */
-  }
-
-  .nav-links {
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .main-content {
-    padding: 20px 15px;
-  }
-
-  .search-box {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .footer-content {
-    flex-direction: column;
-    gap: 30px;
-  }
-
-  .stats-section .el-col {
-    margin-bottom: 15px;
-  }
+  .main-content { padding: var(--space-6) var(--space-4); }
+  .page-header h1 { font-size: var(--text-2xl); }
+  .contact-methods { grid-template-columns: 1fr; }
 }
 </style>

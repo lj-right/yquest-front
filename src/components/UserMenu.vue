@@ -17,7 +17,7 @@
         </el-avatar>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="settings">账号设置</el-dropdown-item>
+        <el-dropdown-item command="settings">个人中心</el-dropdown-item>
         <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -267,83 +267,80 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
-  height: 38px; /* 固定高度，防止导航栏高度变化 */
-  line-height: 38px; /* 与高度一致，确保垂直居中 */
+  height: 40px;
 }
+
 .guest-login-btn {
   display: inline-flex;
   align-items: center;
   height: 36px;
-  padding: 0 16px;
-  border-radius: 6px;
-  background: #f0f4ff;
-  color: #4a6cf8;
-  border: 1px solid #d9e0ff;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid transparent;
   text-decoration: none;
-  transition: all 0.2s ease;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-base);
 }
+
 .guest-login-btn:hover {
-  background: #e4e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 108, 248, 0.15);
+  background: var(--color-primary-light);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
+
 .user-menu-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--transition-fast);
   padding: 0;
   border: none;
   background: transparent;
-  vertical-align: middle; /* 确保与文本对齐 */
 }
 
 .user-menu-trigger:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .user-menu-trigger:hover .user-avatar-display {
-  box-shadow: 0 4px 12px rgba(74, 108, 248, 0.4);
+  box-shadow: var(--shadow-primary);
 }
 
 .user-avatar-display {
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  border: 2px solid var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
   cursor: pointer;
-  flex-shrink: 0; /* 防止头像被压缩 */
-  display: inline-block; /* 确保固定尺寸 */
-  vertical-align: middle; /* 确保与文本基线对齐 */
-  margin: 0; /* 清除可能的默认边距 */
+  flex-shrink: 0;
 }
 
-/* 覆盖 Element UI 默认的紫色背景 */
 .user-avatar-display >>> .el-avatar {
-  background-color: #ffffff;
+  background-color: var(--color-surface);
 }
 
-/* 确保图标显示为灰色 */
 .user-avatar-display >>> .el-icon-user {
-  color: #909399;
+  color: var(--color-text-tertiary);
   font-size: 20px;
 }
 
 .avatar-preview {
-  margin-top: 10px;
+  margin-top: var(--space-2);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .preview-avatar {
-  border: 2px solid #e4e7ed;
+  border: 2px solid var(--color-border);
 }
 
 .preview-tip {
-  font-size: 12px;
-  color: #909399;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
 }
 </style>
 

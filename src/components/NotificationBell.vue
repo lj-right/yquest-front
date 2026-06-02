@@ -55,9 +55,7 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0;
-  margin-right: 8px;
-  height: 38px;
+  height: 40px;
 }
 
 .bell-icon {
@@ -65,43 +63,39 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
-  color: #C9C9D0;
+  color: var(--color-text-tertiary);
   font-size: 20px;
-  transition: all 0.2s ease;
-  border-radius: 6px;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md);
 }
 
 .bell-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
 }
-
-
 
 .unread-indicator {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 4.5px;
-  height: 4.5px;
-  background: #f93232ff;
-  border-radius: 50%;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-danger);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-surface);
 }
 
 .panel-fade-enter-active,
 .panel-fade-leave-active {
-  transition: all 0.25s ease;
+  transition: all 200ms ease;
 }
 
-.panel-fade-enter {
-  opacity: 0;
-  transform: translateY(-12px);
-}
-
+.panel-fade-enter,
 .panel-fade-leave-to {
   opacity: 0;
-  transform: translateY(-12px);
+  transform: translateY(-8px);
 }
 </style>
