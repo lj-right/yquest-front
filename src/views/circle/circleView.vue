@@ -1,33 +1,7 @@
 <template>
   <div class="social-qa-container">
     <!-- 导航栏 -->
-    <nav class="navbar">
-      <a href="#" class="navbar-brand">
-        <router-link to="/yquest" class="brand-logo">Y<span>Quest</span></router-link>
-      </a>
-
-      <div class="nav-links">
-        <router-link to="/yquest" class="nav-link">首页</router-link>
-        <router-link to="/showRefer" class="nav-link">内推机会</router-link>
-        <router-link to="/circle" class="nav-link">求职交流</router-link>
-        <router-link to="/refer" class="nav-link">我要内推</router-link>
-        <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
-      </div>
-
-      <div class="nav-actions">
-        <div>
-          <router-link 
-            v-if="isAdminUser" 
-            to="/manage" 
-            class="nav-btn btn-admin"
-          >
-            后台管理
-          </router-link>
-          <NotificationBell />
-          <UserMenu />
-        </div>
-      </div>
-    </nav>
+    <NavBar />
 
     <!-- 主体内容区域 -->
     <div class="main-content">
@@ -404,12 +378,11 @@
 
 <script>
 import axios from 'axios'
-import UserMenu from '../../components/UserMenu.vue'
-import NotificationBell from '../../components/NotificationBell.vue'
+import NavBar from '../../components/NavBar.vue'
 
 export default {
   name: 'CircleView',
-  components: { UserMenu, NotificationBell },
+  components: { NavBar },
   data() {
     return {
       // 圈子相关
@@ -454,12 +427,6 @@ export default {
       momentLikes: {}, // { momentId: { isLiked: false, account: 0 } }
       commentLikes: {}, // { commentId: { isLiked: false, account: 0 } }
       replyLikes: {} // { replyId: { isLiked: false, account: 0 } }
-    }
-  },
-  computed: {
-    // 判断是否为管理员用户
-    isAdminUser() {
-      return this.$store.state.email === 'suifeng.king@qq.com'
     }
   },
   async mounted() {
