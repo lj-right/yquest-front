@@ -609,6 +609,10 @@ export default {
   opacity: 0.4;
 }
 
+.form-input .el-button--primary {
+  color: #fff !important;
+}
+
 /* ── Responsive ───────────────────────────────── */
 @media (max-width: 768px) {
   .form-container {

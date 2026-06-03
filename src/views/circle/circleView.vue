@@ -1095,17 +1095,19 @@ export default {
 .action-item {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   color: var(--color-text-tertiary);
   font-size: var(--text-sm);
   cursor: pointer;
   transition: color var(--transition-fast);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
 }
 
-.action-item:hover { color: var(--color-primary); }
+.action-item:hover { color: var(--color-primary); background: var(--color-bg); }
 .action-item.liked { color: var(--color-danger); }
-.action-item.liked:hover { color: #F87171; }
-.action-item i { font-size: 18px; }
+.action-item.liked:hover { color: #F87171; background: rgba(248, 113, 113, 0.08); }
+.action-item i { font-size: 20px; }
 
 /* Empty state */
 .empty-state {
@@ -1171,12 +1173,14 @@ export default {
 .comment-actions { margin-top: var(--space-2); margin-left: 42px; display: flex; gap: var(--space-4); }
 
 .like-btn, .reply-btn {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: color var(--transition-fast);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
 }
-.like-btn:hover, .reply-btn:hover { color: var(--color-primary); }
+.like-btn:hover, .reply-btn:hover { color: var(--color-primary); background: var(--color-bg); }
 .like-btn.liked { color: var(--color-danger); }
 
 /* Reply list */
