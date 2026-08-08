@@ -82,7 +82,7 @@
                         type="email"
                         id="loginEmail"
                         class="form-control"
-                        placeholder="请输入邮箱"
+                        placeholder="请输入邮箱(test@qq.com)"
                         v-model="login.email"
                         required
                       />
@@ -96,7 +96,7 @@
                         type="password"
                         id="loginPassword"
                         class="form-control"
-                        placeholder="请输入密码"
+                        placeholder="请输入密码(123456)"
                         v-model="login.password"
                         required
                       />
@@ -606,9 +606,9 @@ export default {
       this.$message.info("微信登录功能已被禁用！")
     },
     // 获取用户昵称和头像
-    async fetchUserNickName(email) {
+    fetchUserNickName(email) {
       try {
-        const res = await axios.post('/api/authUser/queryByEmail', {
+        const res =  axios.post('/api/authUser/queryByEmail', {
           email: email
         })
         if (res.data && (res.data.success === true || res.data.code === 200)) {
@@ -634,9 +634,9 @@ export default {
         this.$store.commit('setName', email)
       }
     },
-    async registerUser() {
+    registerUser() {
       //预处理表单验证
-       const isValid = await this.handleRegister();
+       const isValid = this.handleRegister();
        if (!isValid) {
         return;
         }
@@ -668,7 +668,7 @@ export default {
         })
     },
 
-    async handleRegister() {
+    handleRegister() {
       // 表单验证
       if (
         !this.register.name ||
@@ -705,7 +705,7 @@ export default {
         return false
       }
       // 验证码验证
-      const isValid = await this.getEmailCode();
+      const isValid = this.getEmailCode();
       if (!isValid) {
       this.$message.error("验证码错误，请重新输入")
       return false
