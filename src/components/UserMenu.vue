@@ -30,6 +30,7 @@
       :close-on-click-modal="false"
       :modal="false"
       :lock-scroll="false"
+      append-to-body
     >
       <el-form :model="accountForm" label-width="86px">
         <el-form-item label="昵称">
