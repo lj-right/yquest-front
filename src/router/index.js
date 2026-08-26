@@ -22,6 +22,12 @@ const routes = [
     component: () => import("../views/yquest/showReferView.vue"),
   },
   {
+    path: "/officialRefer",
+    name: "officialRefer",
+    component: () => import("../views/yquest/officialReferView.vue"),
+    meta: { requireAuth: true }
+  },
+  {
     path: "/manage",
     name: "manage",
     component: () => import("../views/manage/manageContainer.vue"),

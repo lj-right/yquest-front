@@ -8,6 +8,7 @@
       <div class="nav-links">
         <router-link to="/yquest" class="nav-link">首页</router-link>
         <router-link to="/showRefer" class="nav-link">内推机会</router-link>
+        <router-link to="/officialRefer" class="nav-link">官方内推</router-link>
         <router-link to="/circle" class="nav-link">求职交流</router-link>
         <router-link to="/refer" class="nav-link">我要内推</router-link>
         <router-link to="/aboutMe" class="nav-link">关于作者</router-link>
@@ -39,6 +40,7 @@
     <div :class="['mobile-menu', { open: mobileMenuOpen }]">
       <div class="mobile-menu-content">
         <router-link to="/yquest" class="mobile-nav-link" @click.native="closeMobileMenu">首页</router-link>
+        <router-link to="/officialRefer" class="mobile-nav-link" @click.native="closeMobileMenu">官方内推</router-link>
         <router-link to="/showRefer" class="mobile-nav-link" @click.native="closeMobileMenu">内推机会</router-link>
         <router-link to="/circle" class="mobile-nav-link" @click.native="closeMobileMenu">求职交流</router-link>
         <router-link to="/refer" class="mobile-nav-link" @click.native="closeMobileMenu">我要内推</router-link>
@@ -63,7 +65,9 @@ export default {
   },
   computed: {
     isAdminUser() {
-      return this.$store.state.email === 'suifeng.king@qq.com'
+      // 优先按角色（manage_user）判断，未加载到角色时回退到管理员邮箱判断
+      const roles = this.$store.state.roles || []
+      return roles.includes('manage_user') || this.$store.state.email === 'suifeng.king@qq.com'
     }
   },
   methods: {

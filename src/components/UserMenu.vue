@@ -22,33 +22,52 @@
       </el-dropdown-menu>
     </el-dropdown>
 
-    <!-- 账号设置对话框 -->
+    <!-- 账号设置 / 内推申请 对话框 -->
     <el-dialog
-      title="账号设置"
+      title="个人中心"
       :visible.sync="settingsVisible"
-      width="520px"
+      :width="profileDialogWidth"
       :close-on-click-modal="false"
       :modal="false"
       :lock-scroll="false"
       append-to-body
     >
-      <el-form :model="accountForm" label-width="86px">
-        <el-form-item label="昵称">
-          <el-input v-model="accountForm.nickName" placeholder="请输入昵称" />
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="accountForm.email" disabled />
-        </el-form-item>
-        <el-form-item label="手机">
-          <el-input v-model="accountForm.phone" placeholder="请输入手机号" />
-        </el-form-item>
-        <el-form-item label="个人介绍">
-          <el-input type="textarea" :rows="3" v-model="accountForm.introduce" placeholder="一句话介绍你自己" />
-        </el-form-item>
-      </el-form>
+      <el-tabs v-model="profileTab">
+        <!-- 账号设置 -->
+        <el-tab-pane label="账号设置" name="account">
+          <el-form :model="accountForm" label-width="86px">
+            <el-form-item label="昵称">
+              <el-input v-model="accountForm.nickName" placeholder="请输入昵称" />
+            </el-form-item>
+            <el-form-item label="邮箱">
+              <el-input v-model="accountForm.email" disabled />
+            </el-form-item>
+            <el-form-item label="手机">
+              <el-input v-model="accountForm.phone" placeholder="请输入手机号" />
+            </el-form-item>
+            <el-form-item label="个人介绍">
+              <el-input type="textarea" :rows="3" v-model="accountForm.introduce" placeholder="一句话介绍你自己" />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
+        <!-- 我的内推申请（求职者 / 招聘者） -->
+        <el-tab-pane v-if="showMyApplies" label="我的内推申请" name="myApplies" lazy>
+          <ReferApplyPanel type="my" />
+        </el-tab-pane>
+
+        <!-- 我收到的申请（仅招聘者，可处理） -->
+        <el-tab-pane v-if="isRecruiter" label="我收到的申请" name="referrerApplies" lazy>
+          <ReferApplyPanel type="referrer" />
+        </el-tab-pane>
+      </el-tabs>
+
       <div slot="footer" class="dialog-footer">
-        <el-button @click="settingsVisible = false">取 消</el-button>
-        <el-button type="primary" :loading="saving" @click="saveProfile">保 存</el-button>
+        <template v-if="profileTab === 'account'">
+          <el-button @click="settingsVisible = false">取 消</el-button>
+          <el-button type="primary" :loading="saving" @click="saveProfile">保 存</el-button>
+        </template>
+        <el-button v-else @click="settingsVisible = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -56,13 +75,16 @@
 
 <script>
 import axios from 'axios'
+import ReferApplyPanel from './ReferApplyPanel.vue'
 
 export default {
   name: 'UserMenu',
+  components: { ReferApplyPanel },
   data() {
     return {
       settingsVisible: false,
       saving: false,
+      profileTab: 'account',
       accountForm: {
         id: 0,
         userName: '',
@@ -94,12 +116,34 @@ export default {
     // 从 store 获取头像，避免每次都重新加载
     userAvatarFromStore() {
       return this.$store.state.avatar || ''
+    },
+    roles() {
+      return this.$store.state.roles || []
+    },
+    // 管理员：内推申请处理统一在后台管理完成，个人中心仅保留账号设置
+    isAdmin() {
+      return this.roles.includes('manage_user')
+    },
+    // 招聘者（企业招聘）：可查看并处理收到的内推申请
+    isRecruiter() {
+      return this.roles.includes('recruiter_user')
+    },
+    // 求职者与招聘者均可查看"我的内推申请"
+    showMyApplies() {
+      return !this.isAdmin && (this.roles.length === 0 || this.isRecruiter || this.roles.includes('jobseek_user'))
+    },
+    // 个人中心对话框宽度：列表页需要更宽的空间
+    profileDialogWidth() {
+      return this.profileTab === 'account' ? '520px' : '880px'
     }
   },
   async mounted() {
     // 组件挂载时，如果已登录且 store 中没有头像，才获取用户头像
-    if (this.isLoggedIn && !this.userAvatarFromStore) {
-      await this.loadUserAvatar()
+    if (this.isLoggedIn) {
+      this.$store.dispatch('fetchRoles')
+      if (!this.userAvatarFromStore) {
+        await this.loadUserAvatar()
+      }
     }
   },
   watch: {
@@ -107,8 +151,11 @@ export default {
     isLoggedIn(newVal) {
       if (!newVal) {
         this.$store.commit('setAvatar', '')
-      } else if (!this.userAvatarFromStore) {
-        this.loadUserAvatar()
+      } else {
+        this.$store.dispatch('fetchRoles')
+        if (!this.userAvatarFromStore) {
+          this.loadUserAvatar()
+        }
       }
     }
   },
@@ -153,6 +200,7 @@ export default {
         this.$message.warning('请先登录')
         return
       }
+      this.profileTab = 'account'
       this.settingsVisible = true
       await this.fetchProfile()
     },
@@ -254,6 +302,7 @@ export default {
       this.$store.commit('setEmail', '')
       this.$store.commit('setName', '注册/登录')
       this.$store.commit('setAvatar', '') // 清除头像
+      this.$store.commit('clearRoles') // 清除角色缓存
       localStorage.removeItem('token')
       localStorage.removeItem('userEmail') // 清除保存的邮箱
       this.$message.success({ message: '已退出登录', duration: 800 })
