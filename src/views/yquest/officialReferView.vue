@@ -96,12 +96,12 @@
 
         <!-- 我的内推申请（求职者 / 招聘者均可查看） -->
         <el-tab-pane label="我的内推申请" name="my" lazy>
-          <ReferApplyPanel type="my" />
+          <ReferApplyPanel type="my" :active="activeTab === 'my'" />
         </el-tab-pane>
 
         <!-- 我收到的内推申请（仅招聘者可查看并处理） -->
         <el-tab-pane v-if="isRecruiter" label="我收到的申请" name="referrer" lazy>
-          <ReferApplyPanel type="referrer" />
+          <ReferApplyPanel type="referrer" :active="activeTab === 'referrer'" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -119,20 +119,6 @@
         </div>
 
         <el-form label-width="90px">
-          <el-form-item label="内推码" required>
-            <el-select v-model="applyForm.referId" placeholder="请选择内推码" style="width: 100%" :disabled="applyLoading">
-              <el-option
-                v-for="r in referOptions"
-                :key="r.id"
-                :label="`${r.company}（${r.refercode || '-'}）· ${r.name || '官方'}`"
-                :value="r.id"
-              ></el-option>
-            </el-select>
-            <div v-if="!applyLoading && referOptions.length === 0" class="form-tip">
-              未找到该公司对应的内推码，请联系平台补充
-            </div>
-          </el-form-item>
-
           <el-form-item label="上传简历" required>
             <el-upload
               class="resume-uploader"
@@ -179,6 +165,7 @@
 <script>
 import axios from "axios"
 import NavBar from "../../components/NavBar.vue"
+import { pickErrMsg } from "../../utils/errMsg"
 import ReferApplyPanel from "../../components/ReferApplyPanel.vue"
 
 export default {
@@ -202,12 +189,8 @@ export default {
       applyLoading: false,
       submitting: false,
       currentJob: null,
-      referOptions: [],
       userInfo: null, // 当前登录用户信息（上传简历所需）
       resumeFileList: [], // 待上传的简历文件
-      applyForm: {
-        referId: null,
-      },
     }
   },
   computed: {
@@ -247,7 +230,7 @@ export default {
             this.jobs = res.data.date.result || []
             this.jobTotal = res.data.date.total || 0
           } else {
-            this.$message.error(res.data.message || "查询职位失败")
+            this.$message.error(pickErrMsg(res.data, "查询职位失败"))
           }
         })
         .catch(() => {
@@ -273,46 +256,17 @@ export default {
       return "面议"
     },
     // ── 申请内推 ──────────────────────────────
-    // 打开申请弹窗：并行加载该公司内推码 + 当前用户信息
+    // 打开申请弹窗：加载当前用户信息（上传简历需要）
     openApplyDialog(job) {
       this.currentJob = job
-      this.applyForm.referId = null
-      this.referOptions = []
       this.userInfo = null
       this.resumeFileList = []
       this.applyDialogVisible = true
       this.applyLoading = true
-      Promise.all([this.loadReferOptions(job), this.loadUserInfo()])
+      this.loadUserInfo()
         .catch(() => {})
         .finally(() => {
           this.applyLoading = false
-        })
-    },
-    // 加载该公司对应的内推码（公司名模糊匹配；搜不到时回退全量内推码）
-    loadReferOptions(job) {
-      return axios
-        .post("/api/refer/searchByMessage", {
-          company: job.companyName,
-          pageNo: 1,
-          pageSize: 50,
-        })
-        .then((res) => {
-          if (res.data.success) {
-            const list = res.data.date.result || []
-            if (list.length > 0) {
-              this.referOptions = list
-              return
-            }
-            // 该公司无内推码，回退展示全部内推码
-            return axios.post("/api/refer/queryPage", { pageNo: 1, pageSize: 50 }).then((res2) => {
-              if (res2.data.success) {
-                this.referOptions = res2.data.date.result || []
-              }
-            })
-          }
-        })
-        .catch(() => {
-          this.$message.error("查询内推码失败")
         })
     },
     // 加载当前登录用户信息（上传简历时需要 userId/姓名/电话）
@@ -347,12 +301,8 @@ export default {
     handleResumeExceed() {
       this.$message.warning("只能上传一份简历文件，如需更换请先移除已选文件")
     },
-    // 提交内推申请：先上传简历，再用新简历ID提交申请
+    // 提交内推申请：先上传简历，再用新简历ID提交申请（职位大厅投递无需内推码）
     submitApply() {
-      if (!this.applyForm.referId) {
-        this.$message.warning("请选择内推码")
-        return
-      }
       if (this.resumeFileList.length === 0) {
         this.$message.warning("请选择要上传的简历文件")
         return
@@ -368,7 +318,6 @@ export default {
       formData.append("jobId", this.currentJob.id)
       formData.append("userId", this.userInfo.id)
       formData.append("userName", this.userInfo.userName || this.userInfo.nickName || "")
-      
       formData.append("userEmail", this.$store.state.email || "")
       formData.append("userPhone", this.userInfo.phone || "")
       axios
@@ -376,14 +325,13 @@ export default {
         .then((res) => {
           if (!res.data.success || !res.data.date) {
             this.submitting = false
-            this.$message.error(res.data.message || "简历上传失败")
+            this.$message.error(pickErrMsg(res.data, "简历上传失败"))
             return
           }
           const resumeId = res.data.date
-          // 2. 用新简历ID提交内推申请
+          // 2. 用新简历ID提交内推申请（不传 referId，由职位发布人处理）
           return axios
             .post("/api/refer/apply/save", {
-              referId: this.applyForm.referId,
               jobId: this.currentJob.id,
               resumeId: resumeId,
             })
@@ -397,7 +345,7 @@ export default {
                 this.activeTab = "my"
               } else {
                 // 后端返回可读错误文案（如重复投递），直接展示
-                this.$message.error(res2.data.message || "提交失败")
+                this.$message.error(pickErrMsg(res2.data, "提交失败"))
               }
             })
         })
@@ -405,6 +353,14 @@ export default {
           this.submitting = false
           this.$message.error("提交失败，请稍后重试")
         })
+    },
+  },
+  watch: {
+    // 切回职位大厅时自动刷新职位列表（面板类 Tab 由 ReferApplyPanel 的 active prop 自行刷新）
+    activeTab(newTab) {
+      if (newTab === "jobs") {
+        this.loadJobs()
+      }
     },
   },
   mounted() {

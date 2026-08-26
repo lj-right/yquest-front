@@ -76,6 +76,7 @@
 <script>
 import axios from 'axios'
 import ReferApplyPanel from './ReferApplyPanel.vue'
+import { pickErrMsg } from '../utils/errMsg'
 
 export default {
   name: 'UserMenu',
@@ -235,7 +236,7 @@ export default {
             this.$store.commit('setAvatar', '')
           }
         } else {
-          this.$message.error(res.data.message || '获取用户信息失败')
+          this.$message.error(pickErrMsg(res.data, '获取用户信息失败'))
         }
       } catch (e) {
         console.error('fetchProfile error', e)
@@ -281,7 +282,7 @@ export default {
           this.$message.success('资料已更新')
           this.settingsVisible = false
         } else {
-          this.$message.error(res.data.message || '资料更新失败')
+          this.$message.error(pickErrMsg(res.data, '资料更新失败'))
         }
       } catch (e) {
         console.error('saveProfile error', e)
