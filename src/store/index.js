@@ -12,8 +12,7 @@ export default new Vuex.Store({
     email: '',
     hasLogin: false,
     avatar: '', // 用户头像URL
-    roles: [], // 当前用户角色标识（jobseek_user/recruiter_user/manage_user）
-    rolesLoaded: false, // 是否已从后端拉取过角色
+    roles: JSON.parse(localStorage.getItem('userRoles') || '[]'), // 当前用户角色 key 列表
   },
   mutations: {
     // 修改状态的方法
@@ -31,37 +30,20 @@ export default new Vuex.Store({
     },
     setRoles(state, roles) {
       state.roles = Array.isArray(roles) ? roles : []
-      state.rolesLoaded = true
-    },
-    clearRoles(state) {
-      state.roles = []
-      state.rolesLoaded = false
+      localStorage.setItem('userRoles', JSON.stringify(state.roles))
     }
   },
   actions: {
-    // 拉取当前登录用户的角色（用于前端权限划分）
-    fetchRoles({ commit, state }) {
-      if (!state.hasLogin) {
-        return Promise.resolve()
+    // 拉取当前登录用户角色列表（officialReferView 按角色显示审批标签页）
+    async fetchRoles({ commit }) {
+      try {
+        const res = await axios.get('/api/authUser/auth/roles')
+        if (res.data && (res.data.success === true || res.data.code === 200)) {
+          commit('setRoles', res.data.date || [])
+        }
+      } catch (error) {
+        console.log('获取角色列表失败')
       }
-      if (state.rolesLoaded) {
-        return Promise.resolve(state.roles)
-      }
-      return axios
-        .post('/api/authUser/auth/getMyRoles')
-        .then((res) => {
-          if (res.data && res.data.success) {
-            commit('setRoles', res.data.date || [])
-            return state.roles
-          }
-          commit('setRoles', [])
-          return []
-        })
-        .catch(() => {
-          // 拉取失败时标记已加载，避免反复请求
-          commit('setRoles', [])
-          return []
-        })
     }
   },
   modules: {

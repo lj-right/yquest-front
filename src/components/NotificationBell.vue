@@ -13,6 +13,7 @@
 <script>
 import { mapState } from 'vuex'
 import NotificationPanel from './NotificationPanel.vue'
+import { initSocket } from '../utils/socket'
 
 export default {
   name: 'NotificationBell',
@@ -23,6 +24,14 @@ export default {
     ...mapState('notification', ['hasUnread', 'isPanelOpen'])
   },
   methods: {
+    // 收到 WebSocket 推送的通知消息
+    onSocketMessage() {
+      this.$store.commit('notification/SET_UNREAD_STATUS', true)
+      // 面板展开中则刷新列表
+      if (this.$store.state.notification.isPanelOpen) {
+        this.$store.dispatch('notification/fetchNotifications')
+      }
+    },
     togglePanel() {
       this.$store.commit('notification/TOGGLE_PANEL')
       if (this.$store.state.notification.isPanelOpen) {
@@ -41,6 +50,11 @@ export default {
   },
   mounted() {
     this.$store.dispatch('notification/fetchUnreadStatus')
+    // 建立通知 WebSocket 连接（单例，多实例挂载不会重复连接）
+    const erp = localStorage.getItem('userEmail')
+    if (erp) {
+      initSocket(erp, this.onSocketMessage)
+    }
     document.addEventListener('click', this.handleClickOutside)
   },
   beforeDestroy() {

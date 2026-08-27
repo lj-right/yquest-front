@@ -11,6 +11,12 @@ module.exports = {
         pathRewrite: {
           '^/api': ''
         }
+      },
+      // WebSocket 通知通道代理到后端
+      '/chicken': {
+        target: 'http://localhost:5555',
+        ws: true,
+        changeOrigin: true
       }
     },
     client:{

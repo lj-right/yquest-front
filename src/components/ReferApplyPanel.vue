@@ -32,10 +32,9 @@
           {{ formatTime(scope.row.createdTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="380" fixed="right">
+      <el-table-column label="操作" width="280" fixed="right">
         <template slot-scope="scope">
-          <!-- 求职者操作按钮（按状态矩阵，统一水平排列） -->
-          <div class="op-btns">
+          <!-- 求职者操作按钮（按状态矩阵） -->
           <el-button
             v-if="[0, 3, 4, 5, 6].includes(scope.row.currentStatus)"
             size="mini"
@@ -67,7 +66,6 @@
             plain
             @click="showFlowRecords(scope.row)"
           >查看进度</el-button>
-          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -90,10 +88,9 @@
           {{ formatTime(scope.row.createdTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="420" fixed="right">
+      <el-table-column label="操作" width="300" fixed="right">
         <template slot-scope="scope">
-          <!-- 内推人操作按钮（按状态矩阵，统一水平排列） -->
-          <div class="op-btns">
+          <!-- 内推人操作按钮（按状态矩阵） -->
           <el-button
             v-if="scope.row.currentStatus === 0"
             size="mini"
@@ -163,7 +160,6 @@
             plain
             @click="showFlowRecords(scope.row)"
           >查看进度</el-button>
-          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -256,7 +252,6 @@
 
 <script>
 import axios from "axios"
-import { pickErrMsg } from "../utils/errMsg"
 
 // 状态码 -> 描述（与接口文档 3.1 一致）
 const STATUS_MAP = {
@@ -312,11 +307,6 @@ export default {
       default: "my",
       validator: (val) => ["my", "referrer"].includes(val),
     },
-    // 所在 Tab 是否激活（用于切回 Tab 时自动刷新；lazy 首次渲染时 active 已为 true，由 mounted 加载）
-    active: {
-      type: Boolean,
-      default: true,
-    },
   },
   data() {
     return {
@@ -368,7 +358,7 @@ export default {
             this.applies = res.data.date.result || []
             this.total = res.data.date.total || 0
           } else {
-            this.$message.error(pickErrMsg(res.data, "查询失败"))
+            this.$message.error(res.data.message || "查询失败")
           }
         })
         .catch(() => {
@@ -429,7 +419,7 @@ export default {
             this.$emit("advanced")
           } else {
             // 后端返回的可读错误文案直接展示
-            this.$message.error(pickErrMsg(res.data, "操作失败"))
+            this.$message.error(res.data.message || "操作失败")
           }
         })
         .catch(() => {
@@ -449,7 +439,7 @@ export default {
           if (res.data.success) {
             this.flowRecords = res.data.date || []
           } else {
-            this.$message.error(pickErrMsg(res.data, "查询失败"))
+            this.$message.error(res.data.message || "查询失败")
           }
         })
         .catch(() => {
@@ -473,7 +463,7 @@ export default {
           if (res.data.success) {
             this.resumeDetail = res.data.date
           } else {
-            this.$message.error(pickErrMsg(res.data, "查询简历失败"))
+            this.$message.error(res.data.message || "查询简历失败")
           }
         })
         .catch(() => {
@@ -489,7 +479,7 @@ export default {
         if (res.data.success && res.data.date) {
           window.open(res.data.date, "_blank")
         } else {
-          this.$message.error(pickErrMsg(res.data, "获取文件链接失败"))
+          this.$message.error(res.data.message || "获取文件链接失败")
         }
       } catch (e) {
         this.$message.error("获取文件链接失败，请稍后重试")
@@ -536,34 +526,12 @@ export default {
   mounted() {
     this.loadApplies()
   },
-  watch: {
-    // Tab 切换激活时自动刷新列表
-    active(val) {
-      if (val) {
-        this.pageNo = 1
-        this.loadApplies()
-      }
-    },
-  },
 }
 </script>
 
 <style scoped>
 .refer-apply-panel {
   width: 100%;
-}
-
-/* 操作列按钮统一水平排列 */
-.op-btns {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 4px;
-}
-
-/* 覆盖 ElementUI 相邻按钮的默认左外边距，改用 gap 控制间距 */
-.op-btns >>> .el-button + .el-button {
-  margin-left: 0;
 }
 
 .filter-bar {

@@ -1,19 +1,25 @@
 /**
- * 提取接口错误文案。
- * 后端部分失败响应（Result.fail(Object)）把具体错误放在 date 字段，
- * message 只有通用的"失败"，因此优先取 date 中的可读文案。
+ * 统一提取后端错误文案
+ * 后端 Result.fail(Object) 重载会把具体错误文案放入 date 字段，message 只有通用的"失败"。
+ * 规则：message 为通用"失败"且 date 为字符串时取 date，否则取 message，均无效时返回 fallback。
  *
- * @param {Object} resData 接口响应体（res.data）
+ * @param {Object} resData 后端返回的 Result 对象（axios 的 response.data）
  * @param {String} fallback 兜底文案
- * @returns {String}
+ * @returns {String} 错误文案
  */
 export function pickErrMsg(resData, fallback) {
-  if (!resData) return fallback
-  const msg = resData.message
-  const date = resData.date
-  // 具体错误文案在 date 且 message 为通用"失败"（或为空）时取 date
-  if (typeof date === "string" && date && (!msg || msg === "失败")) {
-    return date
+  if (resData) {
+    const msg = resData.message
+    const date = resData.date
+    if (msg && msg !== '失败') {
+      return msg
+    }
+    if (typeof date === 'string' && date) {
+      return date
+    }
+    if (msg) {
+      return msg
+    }
   }
-  return msg || fallback
+  return fallback || '操作失败'
 }

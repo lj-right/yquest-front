@@ -544,8 +544,6 @@ export default {
             localStorage.setItem("userEmail", this.codeLogin.email)
             this.$store.commit("setLoginStatus", true)
             this.$store.commit("setEmail", this.codeLogin.email)
-            this.$store.commit("clearRoles") // 清除旧角色，登录后重新拉取
-            this.$store.dispatch("fetchRoles")
             this.fetchUserNickName(this.codeLogin.email)
             this.$message.success({ message: "登录成功", duration: 750 })
             if (this.$route.query.redirect) {
@@ -588,8 +586,6 @@ export default {
               localStorage.setItem("userEmail", this.login.email) // 保存邮箱到 localStorage
               this.$store.commit("setLoginStatus", true)
               this.$store.commit("setEmail", this.login.email)
-              this.$store.commit("clearRoles") // 清除旧角色，登录后重新拉取
-              this.$store.dispatch("fetchRoles")
               // 尝试获取用户昵称
               this.fetchUserNickName(this.login.email)
               this.$message.success({ message: "登录成功", duration: 750 })

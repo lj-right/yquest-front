@@ -65,9 +65,7 @@ export default {
   },
   computed: {
     isAdminUser() {
-      // 优先按角色（manage_user）判断，未加载到角色时回退到管理员邮箱判断
-      const roles = this.$store.state.roles || []
-      return roles.includes('manage_user') || this.$store.state.email === 'suifeng.king@qq.com'
+      return this.$store.state.email === 'suifeng.king@qq.com'
     }
   },
   methods: {
